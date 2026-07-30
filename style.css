@@ -533,11 +533,27 @@ PAGE
 
 .page img{
 
-    max-width:98vw;
+    display:block;
 
-    max-height:90vh;
+    width:auto;
 
-    border:1px solid rgba(255,255,255,.15);
+    height:auto;
+
+    max-width:min(92vw, 900px);
+
+    max-height:calc(100vh - 140px);
+
+    object-fit:contain;
+
+    border:3px solid #9f9f9f;
+
+    border-radius:6px;
+
+    background:#9f9f9f;
+
+    box-shadow:
+        0 12px 40px rgba(0,0,0,.35),
+        0 30px 90px rgba(0,0,0,.45);
 
 }
 .page.active img{
@@ -827,9 +843,15 @@ RESPONSIVE
 
     .page img{
 
-        border-width:5px;
+    max-width:98vw;
 
-    }
+    max-height:90vh;
+
+    border:1px solid rgba(255,255,255,.15);
+
+    border-radius:4px;
+
+}
 
     #fullscreenButton{
 
