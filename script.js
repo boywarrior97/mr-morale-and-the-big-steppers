@@ -1,8 +1,9 @@
-/*==================================================
+/*
+==================================================
 MR. MORALE & THE BIG STEPPERS
-Editorial Reader
-Version 2
-==================================================*/
+Editorial Reader V3
+==================================================
+*/
 
 
 /*==================================================
@@ -12,103 +13,126 @@ CHAPTER DATA
 const chapters = [
 
     {
-        title: "United in Grief",
-        pages: ["01.png","02.png"]
+        title:"United in Grief",
+        card:"01.png",
+        analysis:["02.png"]
     },
 
     {
-        title: "N95",
-        pages: ["03.png","04.png"]
+        title:"N95",
+        card:"03.png",
+        analysis:["04.png"]
     },
 
     {
-        title: "Worldwide Steppers",
-        pages: ["05.png","06.png"]
+        title:"Worldwide Steppers",
+        card:"05.png",
+        analysis:["06.png"]
     },
 
     {
-        title: "Die Hard",
-        pages: ["07.png","08.png"]
+        title:"Die Hard",
+        card:"07.png",
+        analysis:["08.png"]
     },
 
     {
-        title: "Father Time",
-        pages: ["09.png","10.png"]
+        title:"Father Time",
+        card:"09.png",
+        analysis:["10.png"]
     },
 
     {
-        title: "Rich (Interlude)",
-        pages: ["11.png","12.png"]
+        title:"Rich (Interlude)",
+        card:"11.png",
+        analysis:["12.png"]
     },
 
     {
-        title: "Rich Spirit",
-        pages: ["13.png","14.png"]
+        title:"Rich Spirit",
+        card:"13.png",
+        analysis:["14.png"]
     },
 
     {
-        title: "We Cry Together",
-        pages: ["15.png","16.png"]
+        title:"We Cry Together",
+        card:"15.png",
+        analysis:["16.png"]
     },
 
     {
-        title: "Purple Hearts",
-        pages: ["17.png","18.png"]
+        title:"Purple Hearts",
+        card:"17.png",
+        analysis:["18.png"]
     },
 
     {
-        title: "Count Me Out",
-        pages: ["19.png","20.png"]
+        title:"Count Me Out",
+        card:"19.png",
+        analysis:["20.png"]
     },
 
     {
-        title: "Crown",
-        pages: ["21.png","22.png"]
+        title:"Crown",
+        card:"21.png",
+        analysis:["22.png"]
     },
 
     {
-        title: "Silent Hill",
-        pages: ["23.png","24.png"]
+        title:"Silent Hill",
+        card:"23.png",
+        analysis:["24.png"]
     },
 
     {
-        title: "Savior",
-        pages: ["25.png","26.png"]
+        title:"Savior",
+        card:"25.png",
+        analysis:["26.png"]
     },
 
     {
-        title: "Auntie Diaries",
-        pages: ["27.png","28.png"]
+        title:"Auntie Diaries",
+        card:"27.png",
+        analysis:["28.png"]
     },
 
     {
-        title: "Mr. Morale",
-        pages: ["29.png","30.png"]
+        title:"Mr. Morale",
+        card:"29.png",
+        analysis:["30.png"]
     },
 
     {
-        title: "Mother I Sober",
-        pages: ["31.png","32.png","33.png"]
+        title:"Mother I Sober",
+        card:"31.png",
+        analysis:[
+            "32.png",
+            "33.png"
+        ]
     },
 
     {
-        title: "Mirror",
-        pages: ["34.png","35.png"]
+        title:"Mirror",
+        card:"34.png",
+        analysis:["35.png"]
     },
 
     {
-        title: "Bonus",
-        pages: ["36.png","37.png"]
+        title:"The Heart Part 5",
+        card:"36.png",
+        analysis:["37.png"]
     },
 
     {
-        title: "Credits",
-        pages: ["38.png","39.png"]
+        title:"Editorial Process",
+        card:"38.png",
+        analysis:["39.png"]
     },
 
     {
-        title: "End",
-        pages: ["40.png"]
+        title:"Credits",
+        card:"40.png",
+        analysis:[]
     }
 
 ];
@@ -119,40 +143,31 @@ DOM
 ==================================================*/
 
 const viewer =
-document.getElementById("viewer");
-
-const sidebar =
-document.getElementById("sidebar");
-
-const trackList =
-document.getElementById("trackList");
-
-const overlay =
-document.getElementById("overlay");
-
-const loader =
-document.getElementById("loader");
-
-const menuButton =
-document.getElementById("menuButton");
-
-const closeSidebar =
-document.getElementById("closeSidebar");
+    document.getElementById("viewer");
 
 const chapterTitle =
-document.getElementById("chapterTitle");
+    document.getElementById("chapterTitle");
 
 const chapterNumber =
-document.getElementById("chapterNumber");
+    document.getElementById("chapterNumber");
+
+const trackList =
+    document.getElementById("trackList");
 
 const progressFill =
-document.getElementById("progressFill");
+    document.getElementById("progressFill");
 
 const progressText =
-document.getElementById("progressText");
+    document.getElementById("progressText");
 
-const fullscreenButton =
-document.getElementById("fullscreenButton");
+const loader =
+    document.getElementById("loader");
+
+const sidebar =
+    document.getElementById("sidebar");
+
+const overlay =
+    document.getElementById("overlay");
 
 
 /*==================================================
@@ -163,17 +178,15 @@ const state = {
 
     chapter:0,
 
-    page:1,
+    page:0,
 
     animating:false,
 
-    chapterNodes:[],
+    touchStartX:0,
 
-    trackNodes:[],
+    touchStartY:0,
 
-    viewportNodes:[],
-
-    sidebarNodes:[]
+    wheelLocked:false
 
 };
 
@@ -182,247 +195,64 @@ const state = {
 HELPERS
 ==================================================*/
 
-function create(tag,className){
+function clamp(value,min,max){
 
-    const el =
-    document.createElement(tag);
+    return Math.min(
 
-    if(className){
+        Math.max(value,min),
 
-        el.className = className;
+        max
 
-    }
-
-    return el;
+    );
 
 }
 
-function pad(n){
+function pad(number){
 
-    return String(n).padStart(2,"0");
+    return String(number)
 
-}
-
-
-/*==================================================
-BUILD READER
-==================================================*/
-
-function buildReader(){
-
-    chapters.forEach((chapter,index)=>{
-
-        const section =
-        create("section","chapter");
-
-        if(index===0){
-
-            section.classList.add("active");
-
-        }
-
-        section.dataset.chapter=index;
-
-
-        const viewport =
-        create("div","viewport");
-
-        const track =
-        create("div","track-carousel");
-
-
-        /*
-            Clone last page
-        */
-
-        const firstClone =
-        createPage(
-
-            chapter.pages[
-                chapter.pages.length-1
-            ],
-
-            true
-
-        );
-
-        track.appendChild(firstClone);
-
-
-        /*
-            Real pages
-        */
-
-        chapter.pages.forEach(file=>{
-
-            track.appendChild(
-
-                createPage(file)
-
-            );
-
-        });
-
-
-        /*
-            Clone first page
-        */
-
-        const lastClone =
-        createPage(
-
-            chapter.pages[0],
-
-            true
-
-        );
-
-        track.appendChild(lastClone);
-
-
-        viewport.appendChild(track);
-
-        section.appendChild(viewport);
-
-        viewer.appendChild(section);
-
-    });
+        .padStart(2,"0");
 
 }
 
 
 /*==================================================
-CREATE PAGE
-==================================================*/
-
-function createPage(file,clone=false){
-
-    const page =
-    create("div","page");
-
-    if(clone){
-
-        page.dataset.clone="true";
-
-    }
-
-    const img =
-    document.createElement("img");
-
-    img.src=file;
-
-    img.loading="lazy";
-
-    img.draggable=false;
-
-    img.addEventListener("load",()=>{
-
-        page.classList.add("loaded");
-
-    });
-
-    page.appendChild(img);
-
-    return page;
-
-}
-
-
-/*==================================================
-BUILD SIDEBAR
+SIDEBAR
 ==================================================*/
 
 function buildSidebar(){
 
+    trackList.innerHTML="";
+
     chapters.forEach((chapter,index)=>{
 
-        const button =
-        create("button","track");
+        const button=document.createElement("button");
 
-        button.type="button";
+        button.className="track";
 
-        button.dataset.chapter=index;
+        button.innerHTML=`
 
+            <span>${pad(index+1)}</span>
 
-        const number =
-        create("div","trackNumber");
+            <span>${chapter.title}</span>
 
-        number.textContent=
-        pad(index+1);
+        `;
 
+        button.addEventListener("click",()=>{
 
-        const title =
-        create("div","trackTitle");
+            if(index===state.chapter) return;
 
-        title.textContent=
-        chapter.title;
+            state.chapter=index;
 
+            state.page=0;
 
-        const thumb =
-        document.createElement("img");
+            renderChapter();
 
-        thumb.src=
-        chapter.pages[0];
+            closeSidebar();
 
-        thumb.loading="lazy";
-
-        thumb.draggable=false;
-
-
-        button.append(
-
-            number,
-
-            title,
-
-            thumb
-
-        );
+        });
 
         trackList.appendChild(button);
-
-    });
-
-}
-
-
-/*==================================================
-CACHE DOM
-==================================================*/
-
-function cacheNodes(){
-
-    state.chapterNodes =
-
-        [...document.querySelectorAll(".chapter")];
-
-    state.trackNodes =
-
-        [...document.querySelectorAll(".track-carousel")];
-
-    state.viewportNodes =
-
-        [...document.querySelectorAll(".viewport")];
-
-    state.sidebarNodes =
-
-        [...document.querySelectorAll(".track")];
-
-}
-
-
-/*==================================================
-INITIAL TRACK POSITIONS
-==================================================*/
-
-function initialiseTracks(){
-
-    state.trackNodes.forEach((track)=>{
-
-        track.dataset.index=1;
-
-        track.style.transform=
-        "translateX(-100%)";
 
     });
 
@@ -441,437 +271,500 @@ function updateHUD(){
 
     chapterNumber.textContent=
 
-        "Chapter " +
-
         pad(state.chapter+1);
-
-}
-
-
-/*==================================================
-PROGRESS
-==================================================*/
-
-function updateProgress(){
-
-    const progress =
-
-        ((state.chapter+1) /
-
-        chapters.length)
-
-        *100;
 
     progressFill.style.width=
 
-        progress+"%";
+        `${((state.chapter+1)/chapters.length)*100}%`;
 
     progressText.textContent=
 
-        "Chapter " +
+        `${state.chapter+1} / ${chapters.length}`;
 
-        (state.chapter+1) +
+    document
 
-        " / " +
+        .querySelectorAll(".track")
 
-        chapters.length;
+        .forEach((track,index)=>{
 
-}
+            track.classList.toggle(
 
+                "active",
 
-/*==================================================
-SIDEBAR ACTIVE
-==================================================*/
+                index===state.chapter
 
-function updateSidebar(){
-
-    state.sidebarNodes.forEach(node=>{
-
-        node.classList.remove("active");
-
-    });
-
-    state.sidebarNodes[state.chapter]
-
-        ?.classList.add("active");
-
-}
-
-
-/*==================================================
-SHOW CHAPTER
-==================================================*/
-
-function showChapter(index){
-
-    state.chapterNodes.forEach(node=>{
-
-        node.classList.remove("active");
-
-    });
-
-    state.chapter=index;
-
-    state.page=1;
-
-    state.chapterNodes[index]
-
-        .classList.add("active");
-
-    updateHUD();
-
-    updateProgress();
-
-    updateSidebar();
-
-}
-
-
-/*==================================================
-LOADER
-==================================================*/
-
-window.addEventListener("load",()=>{
-
-    setTimeout(()=>{
-
-        loader.style.opacity="0";
-
-        setTimeout(()=>{
-
-            loader.remove();
-
-        },600);
-
-    },300);
-
-});
-
-
-/*==================================================
-INITIALISE
-==================================================*/
-
-function initialise(){
-
-    buildReader();
-
-    buildSidebar();
-
-    cacheNodes();
-
-    initialiseTracks();
-
-    updateHUD();
-
-    updateProgress();
-
-    updateSidebar();
-
-}
-
-initialise();
-
-
-/*==================================================
-PAGE NAVIGATION
-==================================================*/
-function movePage(direction){
-
-    if(state.animating){
-
-        return;
-
-    }
-
-    state.animating=true;
-
-    const chapter =
-    chapters[state.chapter];
-
-    const track =
-    state.trackNodes[state.chapter];
-
-    const total =
-    chapter.pages.length;
-
-    let index =
-    Number(track.dataset.index);
-
-    index += direction;
-
-    track.dataset.index=index;
-
-    track.style.transition=
-        "transform .45s cubic-bezier(.22,1,.36,1)";
-
-    track.style.transform=
-        `translateX(${-100*index}%)`;
-
-    track.addEventListener(
-        "transitionend",
-        handleLoop,
-        {once:true}
-    );
-
-}
-
-
-/*==================================================
-INFINITE LOOP
-==================================================*/
-
-function handleLoop(){
-
-    const chapter =
-    chapters[state.chapter];
-
-    const track =
-    state.trackNodes[state.chapter];
-
-    const total =
-    chapter.pages.length;
-
-    let index =
-    Number(track.dataset.index);
-
-    /*
-        Left clone
-    */
-
-    if(index===0){
-
-        index=total;
-
-        track.style.transition="none";
-
-        track.dataset.index=index;
-
-        track.style.transform=
-            `translateX(${-100*index}%)`;
-
-    }
-
-    /*
-        Right clone
-    */
-
-    if(index===total+1){
-
-        index=1;
-
-        track.style.transition="none";
-
-        track.dataset.index=index;
-
-        track.style.transform=
-            `translateX(${-100*index}%)`;
-
-    }
-
-    requestAnimationFrame(()=>{
-
-        track.style.transition=
-            "transform .45s cubic-bezier(.22,1,.36,1)";
-
-    });
-
-    state.page=index;
-
-    updateActivePage();
-
-    state.animating=false;
-
-}
-
-
-/*==================================================
-ACTIVE PAGE
-==================================================*/
-
-function updateActivePage(){
-
-    const chapter =
-    state.chapterNodes[state.chapter];
-
-    chapter
-        .querySelectorAll(".page")
-        .forEach(page=>{
-
-            page.classList.remove("active");
+            );
 
         });
 
-    const pages =
-    chapter.querySelectorAll(".page");
+}
 
-    pages[state.page]
 
-        ?.classList.add("active");
+/*==================================================
+RENDER
+==================================================*/
+
+function renderChapter(){
+
+    viewer.innerHTML="";
+
+    const chapter=
+
+        chapters[state.chapter];
+
+    const pages=[
+
+        chapter.card,
+
+        ...chapter.analysis
+
+    ];
+
+    const slides=[
+
+        pages[pages.length-1],
+
+        ...pages,
+
+        pages[0]
+
+    ];
+
+    const wrapper=
+
+        document.createElement("section");
+
+    wrapper.className="chapter";
+
+    const carousel=
+
+        document.createElement("div");
+
+    carousel.className="carousel";
+
+    const track=
+
+        document.createElement("div");
+
+    track.className="carousel-track";
+
+    slides.forEach((image,index)=>{
+
+        const page=
+
+            document.createElement("div");
+
+        page.className="page";
+
+        if(index===1){
+
+            page.classList.add("active");
+
+        }
+
+        const img=
+
+            document.createElement("img");
+
+        img.src=image;
+
+        img.draggable=false;
+
+        page.appendChild(img);
+
+        track.appendChild(page);
+
+    });
+
+    carousel.appendChild(track);
+
+    wrapper.appendChild(carousel);
+
+    viewer.appendChild(wrapper);
+
+    track.style.transform=
+
+        "translateX(-100%)";
+
+        updateHUD();
+
+    initialiseCarousel(track,pages.length);
 
 }
 
 
 /*==================================================
-NEXT / PREVIOUS
+CAROUSEL
 ==================================================*/
+
+let carouselTrack=null;
+
+let carouselPages=0;
+
+let currentIndex=1;
+
+
+function initialiseCarousel(track,totalPages){
+
+    carouselTrack=track;
+
+    carouselPages=totalPages;
+
+    currentIndex=1;
+
+    moveCarousel(false);
+
+}
+
+
+function moveCarousel(animated=true){
+
+    if(animated){
+
+        carouselTrack.style.transition=
+
+            "transform 220ms cubic-bezier(.22,1,.36,1)";
+
+    }
+
+    else{
+
+        carouselTrack.style.transition="none";
+
+    }
+
+    carouselTrack.style.transform=
+
+        `translateX(-${currentIndex*100}%)`;
+
+}
+
 
 function nextPage(){
 
-    movePage(1);
+    if(state.animating) return;
+
+    if(carouselPages===1) return;
+
+    state.animating=true;
+
+    currentIndex++;
+
+    moveCarousel();
 
 }
+
 
 function previousPage(){
 
-    movePage(-1);
+    if(state.animating) return;
+
+    if(carouselPages===1) return;
+
+    state.animating=true;
+
+    currentIndex--;
+
+    moveCarousel();
 
 }
+
+
+document.addEventListener(
+
+    "transitionend",
+
+    event=>{
+
+        if(
+
+            !carouselTrack ||
+
+            event.target!==carouselTrack
+
+        ) return;
+
+        if(currentIndex===0){
+
+            currentIndex=
+
+                carouselPages;
+
+            moveCarousel(false);
+
+        }
+
+        if(
+
+            currentIndex===
+
+            carouselPages+1
+
+        ){
+
+            currentIndex=1;
+
+            moveCarousel(false);
+
+        }
+
+        requestAnimationFrame(()=>{
+
+            const pages=
+
+                carouselTrack.querySelectorAll(".page");
+
+            pages.forEach(page=>
+
+                page.classList.remove("active")
+
+            );
+
+            if(pages[currentIndex]){
+
+                pages[currentIndex]
+
+                    .classList.add("active");
+
+            }
+
+            state.page=currentIndex-1;
+
+            state.animating=false;
+
+               });
+
+    }
+
+);
 
 
 /*==================================================
-CHANGE CHAPTER
+CHAPTER NAVIGATION
 ==================================================*/
 
-function changeChapter(direction){
+function animateChapter(direction){
 
-    if(state.animating){
+    if(state.animating) return;
 
-        return;
+    state.animating=true;
 
-    }
+    const current=
 
-    let next =
-    state.chapter + direction;
+        viewer.querySelector(".chapter");
 
-    if(next<0){
+    if(!current){
 
-        next=0;
-
-    }
-
-    if(next>=chapters.length){
-
-        next=
-        chapters.length-1;
-
-    }
-
-    if(next===state.chapter){
+        state.animating=false;
 
         return;
 
     }
 
-    showChapter(next);
+    current.style.transition=
 
-    initialiseTracks();
+        "transform 300ms cubic-bezier(.22,1,.36,1), opacity 300ms ease";
 
-    updateActivePage();
+    current.style.transform=
+
+        direction==="next"
+
+        ?
+
+        "translateY(-80px)"
+
+        :
+
+        "translateY(80px)";
+
+    current.style.opacity="0";
+
+    setTimeout(()=>{
+
+        renderChapter();
+
+        const incoming=
+
+            viewer.querySelector(".chapter");
+
+        incoming.style.transition="none";
+
+        incoming.style.transform=
+
+            direction==="next"
+
+            ?
+
+            "translateY(80px)"
+
+            :
+
+            "translateY(-80px)";
+
+        incoming.style.opacity="0";
+
+        requestAnimationFrame(()=>{
+
+            incoming.style.transition=
+
+                "transform 300ms cubic-bezier(.22,1,.36,1), opacity 300ms ease";
+
+            incoming.style.transform="translateY(0)";
+
+            incoming.style.opacity="1";
+
+        });
+
+        setTimeout(()=>{
+
+            state.animating=false;
+
+        },300);
+
+    },300);
 
 }
 
+
+
+function nextChapter(){
+
+    if(state.chapter>=chapters.length-1) return;
+
+    state.chapter++;
+
+    state.page=0;
+
+    animateChapter("next");
+
+}
+
+
+
+function previousChapter(){
+
+    if(state.chapter<=0) return;
+
+    state.chapter--;
+
+    state.page=0;
+
+    animateChapter("previous");
+
+}
 
 /*==================================================
 KEYBOARD
 ==================================================*/
 
-window.addEventListener("keydown",(event)=>{
+document.addEventListener(
 
-    switch(event.key){
+    "keydown",
 
-        case "ArrowRight":
+    event=>{
 
-            nextPage();
+        switch(event.key){
 
-            break;
+            case "ArrowLeft":
 
-        case "ArrowLeft":
+                previousPage();
 
-            previousPage();
+                break;
 
-            break;
+            case "ArrowRight":
 
-        case "ArrowDown":
+                nextPage();
 
-            changeChapter(1);
+                break;
 
-            break;
+            case "ArrowUp":
 
-        case "ArrowUp":
+                event.preventDefault();
 
-            changeChapter(-1);
+                previousChapter();
 
-            break;
+                break;
 
-        case "f":
+            case "ArrowDown":
 
-        case "F":
+                event.preventDefault();
 
-            toggleFullscreen();
+                nextChapter();
 
-            break;
+                break;
+
+        }
 
     }
 
-});
+);
 
 
 /*==================================================
-SIDEBAR
+MOUSE WHEEL
 ==================================================*/
-state.sidebarNodes.forEach(node=>{
 
-    node.addEventListener("click",()=>{
+let wheelAccumulator=0;
 
-        const index =
-        Number(node.dataset.chapter);
+const WHEEL_THRESHOLD=60;
 
-        if(index===state.chapter){
 
-            closeMenu();
+window.addEventListener(
+
+    "wheel",
+
+    event=>{
+
+        event.preventDefault();
+
+        if(state.animating) return;
+
+        wheelAccumulator+=event.deltaY;
+
+        if(
+
+            Math.abs(wheelAccumulator)
+
+            <
+
+            WHEEL_THRESHOLD
+
+        ){
 
             return;
 
         }
 
-        showChapter(index);
+        if(wheelAccumulator>0){
 
-        /*
-            Reset only the selected chapter
-        */
+            nextChapter();
 
-        const track =
-        state.trackNodes[index];
+        }
 
-        track.dataset.index=1;
+        else{
 
-        track.style.transition="none";
+            previousChapter();
 
-        track.style.transform=
-            "translateX(-100%)";
+        }
 
-        requestAnimationFrame(()=>{
+        wheelAccumulator=0;
 
-            track.style.transition=
-            "transform .45s cubic-bezier(.22,1,.36,1)";
+    },
 
-        });
+       {
 
-        updateActivePage();
+        passive:false
 
-        closeMenu();
+    }
 
-    });
-
-});
+);
 
 
 /*==================================================
-MENU
+SIDEBAR
 ==================================================*/
 
-function openMenu(){
+function openSidebar(){
 
     sidebar.classList.add("open");
 
@@ -879,7 +772,8 @@ function openMenu(){
 
 }
 
-function closeMenu(){
+
+function closeSidebar(){
 
     sidebar.classList.remove("open");
 
@@ -887,27 +781,38 @@ function closeMenu(){
 
 }
 
-menuButton.addEventListener(
 
-    "click",
+document
 
-    openMenu
+    .getElementById("menuButton")
 
-);
+    .addEventListener(
 
-closeSidebar.addEventListener(
+        "click",
 
-    "click",
+        openSidebar
 
-    closeMenu
+    );
 
-);
+
+document
+
+    .getElementById("closeSidebar")
+
+    .addEventListener(
+
+        "click",
+
+        closeSidebar
+
+    );
+
 
 overlay.addEventListener(
 
     "click",
 
-    closeMenu
+    closeSidebar
 
 );
 
@@ -916,75 +821,89 @@ overlay.addEventListener(
 FULLSCREEN
 ==================================================*/
 
-function toggleFullscreen(){
+document
 
-    if(!document.fullscreenElement){
+    .getElementById("fullscreenButton")
 
-        document.documentElement
-            .requestFullscreen();
+    .addEventListener(
 
-    }
+        "click",
 
-    else{
+        ()=>{
 
-        document.exitFullscreen();
+            if(
 
-    }
+                !document.fullscreenElement
 
-}
+            ){
 
-fullscreenButton.addEventListener(
+                document.documentElement
 
-    "click",
+                    .requestFullscreen();
 
-    toggleFullscreen
+            }
 
-);
+            else{
+
+                document.exitFullscreen();
+
+            }
+
+        }
+
+    );
 
 
 /*==================================================
 TOUCH
 ==================================================*/
 
-let touchStartX=0;
-
-let touchStartY=0;
-
-window.addEventListener(
+viewer.addEventListener(
 
     "touchstart",
 
     event=>{
 
-        touchStartX=
-        event.touches[0].clientX;
+        const touch=
 
-        touchStartY=
-        event.touches[0].clientY;
+            event.touches[0];
+
+        state.touchStartX=touch.clientX;
+
+        state.touchStartY=touch.clientY;
 
     },
 
-    {passive:true}
+    {
+
+        passive:true
+
+    }
 
 );
 
-window.addEventListener(
+
+viewer.addEventListener(
 
     "touchend",
 
     event=>{
 
+        const touch=
+
+            event.changedTouches[0];
+
         const dx=
 
-            event.changedTouches[0].clientX
+            touch.clientX-
 
-            - touchStartX;
+            state.touchStartX;
 
         const dy=
 
-            event.changedTouches[0].clientY
+            touch.clientY-
 
-            - touchStartY;
+            state.touchStartY;
 
         if(
 
@@ -994,13 +913,13 @@ window.addEventListener(
 
         ){
 
-            if(dx<-40){
+            if(dx<-50){
 
                 nextPage();
 
             }
 
-            if(dx>40){
+            else if(dx>50){
 
                 previousPage();
 
@@ -1010,15 +929,15 @@ window.addEventListener(
 
         else{
 
-            if(dy<-50){
+            if(dy<-60){
 
-                changeChapter(1);
+                nextChapter();
 
             }
 
-            if(dy>50){
+            else if(dy>60){
 
-                changeChapter(-1);
+                previousChapter();
 
             }
 
@@ -1026,107 +945,9 @@ window.addEventListener(
 
     },
 
-    {passive:true}
+    {
 
-);
-
-
-/*==================================================
-MOUSE WHEEL
-==================================================*/
-
-let wheelTimeout;
-
-window.addEventListener(
-
-    "wheel",
-
-    event=>{
-
-        clearTimeout(
-
-            wheelTimeout
-
-        );
-
-        wheelTimeout=
-
-        setTimeout(()=>{
-
-            if(
-
-                Math.abs(event.deltaX)>
-
-                Math.abs(event.deltaY)
-
-            ){
-
-                if(event.deltaX>20){
-
-                    nextPage();
-
-                }
-
-                else if(event.deltaX<-20){
-
-                    previousPage();
-
-                }
-
-            }
-
-            else{
-
-                if(event.deltaY>40){
-
-                    changeChapter(1);
-
-                }
-
-                else if(event.deltaY<-40){
-
-                    changeChapter(-1);
-
-                }
-
-            }
-
-        },15);
-
-    },
-
-    {passive:true}
-
-);
-
-
-/*==================================================
-RESIZE
-==================================================*/
-
-window.addEventListener(
-
-    "resize",
-
-    ()=>{
-
-        const track=
-
-        state.trackNodes[state.chapter];
-
-        track.style.transition="none";
-
-        track.style.transform=
-
-            `translateX(${-100*state.page}%)`;
-
-        requestAnimationFrame(()=>{
-
-            track.style.transition=
-
-            "transform .45s cubic-bezier(.22,1,.36,1)";
-
-        });
+        passive:true
 
     }
 
@@ -1134,13 +955,28 @@ window.addEventListener(
 
 
 /*==================================================
-START
+STARTUP
 ==================================================*/
 
-updateActivePage();
+buildSidebar();
 
-updateHUD();
+renderChapter();
 
-updateProgress();
 
-updateSidebar();
+window.addEventListener(
+
+    "load",
+
+    ()=>{
+
+        setTimeout(()=>{
+
+            loader.style.opacity="0";
+
+            loader.style.pointerEvents="none";
+
+        },350);
+
+    }
+
+);
