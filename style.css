@@ -1,0 +1,35 @@
+body{
+
+    margin:0;
+    background:#111;
+    font-family:Georgia, serif;
+
+}
+
+header{
+
+    text-align:center;
+    color:white;
+    padding:50px 20px;
+
+}
+
+.container{
+
+    width:min(1100px,95%);
+    margin:auto;
+
+}
+
+img{
+
+    width:100%;
+    display:block;
+
+    margin-bottom:40px;
+
+    border-radius:10px;
+
+    box-shadow:0 20px 60px rgba(0,0,0,.35);
+
+}

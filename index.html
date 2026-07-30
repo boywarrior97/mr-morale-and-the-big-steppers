@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mr. Morale & The Big Steppers — Article</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+    <h1>Mr. Morale & The Big Steppers</h1>
+    <p>An editorial analysis by Rohan Jose</p>
+</header>
+
+<div class="container">
+
+<script>
+for(let i=1;i<=40;i++){
+
+    let img=document.createElement("img");
+
+    img.src=`pages/${String(i).padStart(2,'0')}.png`;
+
+    img.loading="lazy";
+
+    document.querySelector(".container").appendChild(img);
+
+}
+</script>
+
+</div>
+
+</body>
+</html>
