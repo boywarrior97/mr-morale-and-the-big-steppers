@@ -1,7 +1,6 @@
 /*==================================================
 MR. MORALE & THE BIG STEPPERS
-Editorial Reader
-Version 2
+Editorial Reader V3
 ==================================================*/
 
 
@@ -19,33 +18,29 @@ RESET
 
 }
 
-html{
+html,
+body{
 
-    scroll-behavior:smooth;
+    width:100%;
+    height:100%;
+
     overflow:hidden;
 
 }
 
 body{
 
-    font-family:
-    Inter,
-    Helvetica,
-    Arial,
-    sans-serif;
-
     background:#050505;
 
     color:#fff;
 
-    width:100vw;
-    height:100vh;
+    font-family:
 
-    overflow:hidden;
+        Inter,
+
+        sans-serif;
 
     -webkit-font-smoothing:antialiased;
-
-    text-rendering:optimizeLegibility;
 
 }
 
@@ -58,64 +53,38 @@ VARIABLES
 
     --bg:#050505;
 
-    --panel:#111;
+    --panel:#101010;
 
-    --panel2:#1b1b1b;
+    --border:rgba(255,255,255,.08);
 
-    --text:#ffffff;
+    --text:#fff;
 
-    --muted:#9d9d9d;
-
-    --border:rgba(255,255,255,.12);
-
-    --frame:#ffffff;
-
-    --accent:#ffffff;
-
-    --shadow:
-        0 20px 60px rgba(0,0,0,.45);
+    --muted:#8f8f8f;
 
     --radius:14px;
 
-    --transition:.35s ease;
+    --transition:
 
-    --sidebar-width:340px;
-
-    --hud-height:72px;
+        .28s cubic-bezier(.22,1,.36,1);
 
 }
 
 
 /*==================================================
-TYPOGRAPHY
+BUTTONS
 ==================================================*/
-
-h1,h2,h3{
-
-    font-weight:700;
-    letter-spacing:-.03em;
-
-}
-
-p{
-
-    line-height:1.6;
-
-    color:var(--muted);
-
-}
 
 button{
 
-    font:inherit;
-
-    color:inherit;
+    border:none;
 
     background:none;
 
-    border:none;
+    color:inherit;
 
     cursor:pointer;
+
+    font:inherit;
 
 }
 
@@ -140,8 +109,7 @@ LOADER
 
     z-index:9999;
 
-    transition:
-    opacity .6s ease;
+    transition:.5s ease;
 
 }
 
@@ -155,19 +123,21 @@ LOADER
 
     font-size:2rem;
 
-    margin-bottom:12px;
+    line-height:1.15;
+
+    margin-bottom:18px;
 
 }
 
 .loader-content p{
 
-    color:#888;
-
-    letter-spacing:.1em;
+    color:#777;
 
     text-transform:uppercase;
 
-    font-size:.85rem;
+    letter-spacing:.18em;
+
+    font-size:.8rem;
 
 }
 
@@ -186,7 +156,7 @@ HUD
 
     right:0;
 
-    height:var(--hud-height);
+    height:72px;
 
     display:flex;
 
@@ -196,33 +166,31 @@ HUD
 
     padding:0 28px;
 
-    backdrop-filter:blur(18px);
+    backdrop-filter:blur(16px);
 
-    background:rgba(8,8,8,.65);
+    background:rgba(5,5,5,.65);
 
     border-bottom:1px solid var(--border);
 
-    z-index:300;
+    z-index:100;
 
 }
 
-.hud-center{
+#hudCenter{
 
     text-align:center;
-
-    pointer-events:none;
 
 }
 
 #albumTitle{
 
-    font-size:.78rem;
+    font-size:.72rem;
 
-    text-transform:uppercase;
+    color:#8f8f8f;
 
     letter-spacing:.18em;
 
-    color:#999;
+    text-transform:uppercase;
 
 }
 
@@ -238,22 +206,23 @@ HUD
 
 #chapterNumber{
 
-    font-size:.82rem;
+    color:#888;
 
-    color:#aaa;
+    font-size:.8rem;
 
 }
 
 
 /*==================================================
-MENU BUTTON
+MENU
 ==================================================*/
 
-#menuButton{
+#menuButton,
+#closeSidebar{
 
-    width:46px;
+    width:42px;
 
-    height:46px;
+    height:42px;
 
     border-radius:50%;
 
@@ -261,9 +230,10 @@ MENU BUTTON
 
 }
 
-#menuButton:hover{
+#menuButton:hover,
+#closeSidebar:hover{
 
-    background:rgba(255,255,255,.08);
+    background:#1c1c1c;
 
 }
 
@@ -276,11 +246,11 @@ SIDEBAR
 
     position:fixed;
 
-    left:0;
-
     top:0;
 
-    width:var(--sidebar-width);
+    left:0;
+
+    width:320px;
 
     height:100vh;
 
@@ -288,22 +258,21 @@ SIDEBAR
 
     border-right:1px solid var(--border);
 
+    transform:translateX(-100%);
+
+    transition:.35s ease;
+
     display:flex;
 
     flex-direction:column;
 
-    transform:translateX(-100%);
-
-    transition:
-    transform .45s cubic-bezier(.22,1,.36,1);
-
-    z-index:500;
+    z-index:300;
 
 }
 
 #sidebar.open{
 
-    transform:translateX(0);
+    transform:none;
 
 }
 
@@ -317,32 +286,11 @@ SIDEBAR
 
     align-items:center;
 
-    padding:0 24px;
+    padding:0 22px;
 
     border-bottom:1px solid var(--border);
 
 }
-
-#closeSidebar{
-
-    width:40px;
-
-    height:40px;
-
-    border-radius:50%;
-
-}
-
-#closeSidebar:hover{
-
-    background:#1d1d1d;
-
-}
-
-
-/*==================================================
-TRACK LIST
-==================================================*/
 
 #trackList{
 
@@ -356,121 +304,41 @@ TRACK LIST
 
 .track{
 
-    position:relative;
-
     width:100%;
 
     display:grid;
 
     grid-template-columns:
-    42px
-    1fr;
 
-    align-items:center;
+        42px
+
+        1fr;
 
     gap:14px;
+
+    align-items:center;
 
     padding:14px;
 
     border-radius:12px;
 
-    margin-bottom:6px;
-
     transition:var(--transition);
+
+    margin-bottom:6px;
 
 }
 
 .track:hover{
 
-    background:#171717;
+    background:#181818;
 
 }
 
 .track.active{
 
-    background:#222;
+    background:#242424;
 
     border:1px solid rgba(255,255,255,.08);
-
-}
-
-.trackNumber{
-
-    font-size:.8rem;
-
-    font-weight:700;
-
-    color:#666;
-
-    text-align:center;
-
-    transition:var(--transition);
-
-}
-
-.track.active .trackNumber{
-
-    color:#fff;
-
-}
-
-.trackTitle{
-
-    font-size:.92rem;
-
-    font-weight:500;
-
-    color:#ddd;
-
-    white-space:nowrap;
-
-    overflow:hidden;
-
-    text-overflow:ellipsis;
-
-}
-
-.track.active .trackTitle{
-
-    color:#fff;
-
-}
-
-.track img{
-
-    position:absolute;
-
-    right:16px;
-
-    top:50%;
-
-    transform:
-        translateY(-50%)
-        scale(.9);
-
-    width:72px;
-
-    border-radius:8px;
-
-    opacity:0;
-
-    pointer-events:none;
-
-    box-shadow:0 12px 28px rgba(0,0,0,.45);
-
-    transition:
-        opacity .25s ease,
-        transform .25s ease;
-
-}
-
-.track:hover img{
-
-    opacity:1;
-
-    transform:
-        translateY(-50%)
-        scale(1);
 
 }
 
@@ -487,13 +355,13 @@ SIDEBAR FOOTER
 
 }
 
-#progress{
+#progressBar{
 
     width:100%;
 
     height:4px;
 
-    background:#202020;
+    background:#1b1b1b;
 
     border-radius:999px;
 
@@ -503,25 +371,23 @@ SIDEBAR FOOTER
 
 #progressFill{
 
-    width:0;
+    width:0%;
 
     height:100%;
 
-    background:#fff;
+    background:#ffffff;
 
-    transition:width .45s ease;
+    transition:width .3s ease;
 
 }
 
 #progressText{
 
-    display:block;
-
     margin-top:12px;
 
-    color:#888;
-
     font-size:.8rem;
+
+    color:#8d8d8d;
 
 }
 
@@ -544,9 +410,9 @@ OVERLAY
 
     pointer-events:none;
 
-    transition:.35s ease;
+    transition:opacity .3s ease;
 
-    z-index:450;
+    z-index:250;
 
 }
 
@@ -565,26 +431,9 @@ VIEWER
 
 #viewer{
 
-    position:absolute;
+    position:fixed;
 
-    inset:0;
-
-    overflow:hidden;
-
-    padding-top:var(--hud-height);
-
-}
-
-
-/*==================================================
-CHAPTER
-==================================================*/
-
-.chapter{
-
-    position:absolute;
-
-    inset:0;
+    inset:72px 0 58px 0;
 
     display:flex;
 
@@ -592,42 +441,39 @@ CHAPTER
 
     align-items:center;
 
-    padding:48px;
-
-    opacity:0;
-
-    visibility:hidden;
-
-    transform:translateY(40px);
-
-    transition:
-
-        opacity .55s ease,
-
-        transform .55s ease,
-
-        visibility .55s;
-
-}
-
-.chapter.active{
-
-    opacity:1;
-
-    visibility:visible;
-
-    transform:translateY(0);
+    overflow:hidden;
 
 }
 
 
 /*==================================================
-VIEWPORT
+CURRENT CHAPTER
 ==================================================*/
 
-.viewport{
+.chapter{
 
-    position:relative;
+    width:100%;
+
+    height:100%;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    animation:
+
+        fadeIn .28s ease;
+
+}
+
+
+/*==================================================
+CAROUSEL
+==================================================*/
+
+.carousel{
 
     width:100%;
 
@@ -636,6 +482,8 @@ VIEWPORT
     overflow:hidden;
 
     display:flex;
+
+    justify-content:center;
 
     align-items:center;
 
@@ -646,24 +494,28 @@ VIEWPORT
 TRACK
 ==================================================*/
 
-.track-carousel{
+.carousel-track{
 
     display:flex;
 
-    align-items:center;
-
     height:100%;
+
+    width:100%;
 
     will-change:transform;
 
-    transition:
-        transform .45s cubic-bezier(.22,1,.36,1);
+    transform:translate3d(0,0,0);
 
 }
 
+
+/*==================================================
+PAGE
+==================================================*/
+
 .page{
 
-    flex:0 0 100%;
+    min-width:100%;
 
     height:100%;
 
@@ -673,13 +525,9 @@ TRACK
 
     align-items:center;
 
-    padding:32px;
+    padding:40px;
 
     user-select:none;
-
-    -webkit-user-select:none;
-
-    pointer-events:none;
 
 }
 
@@ -697,48 +545,39 @@ TRACK
 
     object-fit:contain;
 
-    border:8px solid var(--frame);
+    border:8px solid #fff;
 
     border-radius:8px;
 
     background:#fff;
 
     box-shadow:
-        0 0 0 1px rgba(255,255,255,.06),
-        0 24px 70px rgba(0,0,0,.45),
-        0 40px 120px rgba(0,0,0,.55);
 
-    transform:scale(.96);
+        0 0 0 1px rgba(255,255,255,.08),
 
-    opacity:0;
+        0 24px 80px rgba(0,0,0,.45),
+
+        0 60px 160px rgba(0,0,0,.65);
 
     transition:
 
-        opacity .7s ease,
+        transform .22s ease,
 
-        transform .7s ease,
-
-        box-shadow .35s ease;
-
-}
-
-.page.loaded img{
-
-    opacity:1;
-
-    transform:scale(1);
+        box-shadow .22s ease;
 
 }
 
 .page.active img{
 
+    transform:scale(1.01);
+
     box-shadow:
 
-        0 0 0 1px rgba(255,255,255,.10),
+        0 0 0 1px rgba(255,255,255,.15),
 
-        0 32px 90px rgba(0,0,0,.60),
+        0 32px 100px rgba(0,0,0,.55),
 
-        0 60px 150px rgba(0,0,0,.70);
+        0 70px 180px rgba(0,0,0,.72);
 
 }
 
@@ -748,144 +587,238 @@ TRACK
 
 }
 
-
-/*==================================================
-CONTROLS
+ /*==================================================
+BOTTOM CONTROLS
 ==================================================*/
 
 #controls{
 
     position:fixed;
 
-    left:50%;
+    left:0;
 
-    bottom:28px;
+    right:0;
 
-    transform:translateX(-50%);
+    bottom:0;
+
+    height:58px;
 
     display:flex;
 
-    gap:22px;
+    justify-content:center;
 
-    padding:12px 22px;
+    align-items:center;
 
-    border:1px solid var(--border);
+    gap:42px;
 
-    border-radius:999px;
+    background:rgba(5,5,5,.7);
 
-    background:rgba(10,10,10,.75);
+    backdrop-filter:blur(16px);
 
-    backdrop-filter:blur(18px);
+    border-top:1px solid var(--border);
 
-    font-size:.8rem;
+    color:#8d8d8d;
 
-    color:#888;
+    font-size:.78rem;
 
-    z-index:250;
+    letter-spacing:.08em;
 
-}
-
-#controls span{
-
-    white-space:nowrap;
+    z-index:100;
 
 }
 
 
 /*==================================================
-FULLSCREEN BUTTON
+FULLSCREEN
 ==================================================*/
 
 #fullscreenButton{
 
     position:fixed;
 
-    right:24px;
+    right:28px;
 
-    bottom:24px;
+    bottom:82px;
 
-    width:54px;
+    width:52px;
 
-    height:54px;
+    height:52px;
 
-    display:grid;
+    display:flex;
 
-    place-items:center;
+    justify-content:center;
+
+    align-items:center;
 
     border-radius:50%;
 
-    background:rgba(18,18,18,.85);
+    background:#161616;
 
     border:1px solid var(--border);
 
-    backdrop-filter:blur(18px);
+    font-size:1.1rem;
 
     transition:var(--transition);
 
-    z-index:250;
+    z-index:120;
 
 }
 
 #fullscreenButton:hover{
 
-    background:#252525;
+    background:#232323;
 
     transform:scale(1.06);
 
 }
 
-#fullscreenButton:active{
 
-    transform:scale(.96);
+/*==================================================
+SCROLLBAR
+==================================================*/
+
+#trackList::-webkit-scrollbar{
+
+    width:8px;
+
+}
+
+#trackList::-webkit-scrollbar-thumb{
+
+    background:#2b2b2b;
+
+    border-radius:999px;
+
+}
+
+#trackList::-webkit-scrollbar-track{
+
+    background:transparent;
 
 }
 
 
 /*==================================================
-FOCUS STATES
+ANIMATIONS
 ==================================================*/
 
-button:focus-visible,
+@keyframes fadeIn{
 
-.track:focus-visible{
+    from{
 
-    outline:2px solid #fff;
+        opacity:0;
 
-    outline-offset:3px;
+    }
+
+    to{
+
+        opacity:1;
+
+    }
 
 }
 
-@media (max-width:1200px){
+@keyframes fadeOut{
 
-    :root{
+    from{
 
-        --sidebar-width:300px;
+        opacity:1;
+
+    }
+
+    to{
+
+        opacity:0;
 
     }
 
-    .chapter{
+}
 
-        padding:36px;
+@keyframes slideUp{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(40px);
 
     }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+@keyframes slideDown{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(-40px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+
+/*==================================================
+UTILITY
+==================================================*/
+
+.hidden{
+
+    display:none !important;
+
+}
+
+.no-transition{
+
+    transition:none !important;
+
+}
+
+.no-select{
+
+    user-select:none;
+
+}
+
+
+/*==================================================
+RESPONSIVE
+==================================================*/
+
+@media (max-width:1100px){
 
     .page{
 
-        padding:24px;
+        padding:28px;
 
     }
 
-    #controls{
+    #sidebar{
 
-        gap:16px;
-
-        font-size:.75rem;
+        width:290px;
 
     }
 
 }
 
-@media (max-width:900px){
+@media (max-width:768px){
 
     #hud{
 
@@ -895,31 +828,21 @@ button:focus-visible,
 
     #albumTitle{
 
-        font-size:.7rem;
-
-    }
-
-    #chapterTitle{
-
-        font-size:.9rem;
-
-    }
-
-    #chapterNumber{
-
         display:none;
+
+    }
+
+    #controls{
+
+        gap:18px;
+
+        font-size:.7rem;
 
     }
 
     #sidebar{
 
-        width:280px;
-
-    }
-
-    .chapter{
-
-        padding:20px;
+        width:100%;
 
     }
 
@@ -931,78 +854,23 @@ button:focus-visible,
 
     .page img{
 
-        border-width:6px;
-
-    }
-
-    #controls{
-
-        bottom:18px;
-
-        padding:10px 18px;
-
-        gap:12px;
-
-    }
-
-}
-
-@media (max-width:640px){
-
-    #sidebar{
-
-        width:100vw;
-
-    }
-
-    #controls{
-
-        display:none;
+        border-width:5px;
 
     }
 
     #fullscreenButton{
 
-        width:48px;
+        width:46px;
 
-        height:48px;
+        height:46px;
 
         right:18px;
 
-        bottom:18px;
-
-    }
-
-    .chapter{
-
-        padding:12px;
-
-    }
-
-    .page{
-
-        padding:8px;
-
-    }
-
-    .page img{
-
-        max-width:100%;
-
-        max-height:100%;
-
-        border-width:4px;
-
-        border-radius:4px;
+        bottom:76px;
 
     }
 
 }
-
-
-/*==================================================
-REDUCED MOTION
-==================================================*/
 
 @media (prefers-reduced-motion:reduce){
 
@@ -1017,138 +885,3 @@ REDUCED MOTION
     }
 
 }
-
-
-/*==================================================
-UTILITY CLASSES
-==================================================*/
-
-.hidden{
-
-    display:none !important;
-
-}
-
-.invisible{
-
-    opacity:0 !important;
-
-}
-
-.no-pointer{
-
-    pointer-events:none !important;
-
-}
-
-.lock-scroll{
-
-    overflow:hidden;
-
-}
-
-
-/*==================================================
-ANIMATIONS
-==================================================*/
-
-@keyframes fadeUp{
-
-    from{
-
-        opacity:0;
-
-        transform:
-            translateY(32px);
-
-    }
-
-    to{
-
-        opacity:1;
-
-        transform:
-            translateY(0);
-
-    }
-
-}
-
-@keyframes fade{
-
-    from{
-
-        opacity:0;
-
-    }
-
-    to{
-
-        opacity:1;
-
-    }
-
-}
-
-.fade-up{
-
-    animation:
-        fadeUp .6s ease forwards;
-
-}
-
-.fade{
-
-    animation:
-        fade .5s ease forwards;
-
-}
-
-
-/*==================================================
-SELECTION
-==================================================*/
-
-::selection{
-
-    background:#ffffff;
-
-    color:#000000;
-
-}
-
-
-/*==================================================
-SCROLLBARS
-==================================================*/
-
-::-webkit-scrollbar{
-
-    width:8px;
-
-}
-
-::-webkit-scrollbar-track{
-
-    background:#111;
-
-}
-
-::-webkit-scrollbar-thumb{
-
-    background:#333;
-
-    border-radius:999px;
-
-}
-
-::-webkit-scrollbar-thumb:hover{
-
-    background:#555;
-
-}
-
-
-/*==================================================
-END
-==================================================*/
