@@ -1,1014 +1,711 @@
-/*
-==================================================
+/*==================================================
 MR. MORALE & THE BIG STEPPERS
-Editorial Reader V3
-==================================================
-*/
+Editorial Reader V4 — single cohesive engine
+==================================================*/
 
+/*==================================================
+CONFIGURATION
+==================================================*/
+
+const CONFIG = {
+    transitionDuration: 300,
+    hudHideDelay: 2000,
+    swipeThreshold: 60,
+    wheelThreshold: 60,
+    preloadRadius: 2 // how many chapters ahead/behind stay decoded in cache
+};
 
 /*==================================================
 CHAPTER DATA
 ==================================================*/
 
-const chapters = [
-
-    {
-        title:"Mr. Morale & the Big Steppers",
-        card:"01.png",
-        analysis:["02.png"]
-    },
-
-    {
-        title:"United in Grief",
-        card:"03.png",
-        analysis:["04.png"]
-    },
-
-    {
-        title:"N95",
-        card:"05.png",
-        analysis:["06.png"]
-    },
-
-    {
-        title:"Worldwide Steppers",
-        card:"07.png",
-        analysis:["08.png"]
-    },
-
-    {
-        title:"Die Hard",
-        card:"09.png",
-        analysis:["10.png"]
-    },
-
-    {
-        title:"Father Time",
-        card:"11.png",
-        analysis:["12.png"]
-    },
-
-    {
-        title:"Rich (Interlude)",
-        card:"13.png",
-        analysis:["14.png"]
-    },
-
-    {
-        title:"Rich Spirit",
-        card:"15.png",
-        analysis:["16.png"]
-    },
-
-    {
-        title:"We Cry Together",
-        card:"17.png",
-        analysis:["18.png"]
-    },
-
-    {
-        title:"Purple Hearts",
-        card:"19.png",
-        analysis:["20.png"]
-    },
-
-    {
-        title:"Count Me Out",
-        card:"21.png",
-        analysis:["22.png"]
-    },
-
-    {
-        title:"Crown",
-        card:"23.png",
-        analysis:["24.png"]
-    },
-
-    {
-        title:"Silent Hill",
-        card:"25.png",
-        analysis:["26.png"]
-    },
-
-    {
-        title:"Savior (Interlude)",
-        card:"27.png",
-        analysis:["28.png"]
-    },
-
-    {
-        title:"Savior",
-        card:"29.png",
-        analysis:["30.png"]
-    },
-
-    {
-        title:"Auntie Diaries",
-        card:"31.png",
-        analysis:[
-            "32.png",
-            "33.png"
-        ]
-    },
-
-    {
-        title:"Mr. Morale",
-        card:"34.png",
-        analysis:["35.png"]
-    },
-
-    {
-        title:"Mother I Sober",
-        card:"36.png",
-        analysis:["37.png"]
-    },
-
-    {
-        title:"Mirror",
-        card:"38.png",
-        analysis:["39.png"]
-    },
-
-    {
-        title:"The End",
-        card:"40.png",
-        analysis:[]
-    }
-
-];
-
+// Populate this array with your chapter objects: { title, pages: [srcs...] }
+const chapters = [];
 
 /*==================================================
-DOM
+DOM REFERENCES
 ==================================================*/
 
-const viewer =
-    document.getElementById("viewer");
-
-const chapterTitle =
-    document.getElementById("chapterTitle");
-
-const chapterNumber =
-    document.getElementById("chapterNumber");
-
-const trackList =
-    document.getElementById("trackList");
-
-const progressFill =
-    document.getElementById("progressFill");
-
-const progressText =
-    document.getElementById("progressText");
-
-const loader =
-    document.getElementById("loader");
-
-const sidebar =
-    document.getElementById("sidebar");
-
-const overlay =
-    document.getElementById("overlay");
-
+const dom = {
+    loader: document.getElementById("loader"),
+    viewer: document.getElementById("viewer"),
+    hud: document.getElementById("hud"),
+    controls: document.getElementById("controls"),
+    sidebar: document.getElementById("sidebar"),
+    overlay: document.getElementById("overlay"),
+    trackList: document.getElementById("trackList"),
+    menuButton: document.getElementById("menuButton"),
+    closeSidebar: document.getElementById("closeSidebar"),
+    previousPageButton: document.getElementById("previousPageButton"),
+    nextPageButton: document.getElementById("nextPageButton"),
+    previousChapterButton: document.getElementById("previousChapterButton"),
+    nextChapterButton: document.getElementById("nextChapterButton"),
+    toggleHUDButton: document.getElementById("toggleHUDButton"),
+    fullscreenButton: document.getElementById("fullscreenButton"),
+    albumTitle: document.getElementById("albumTitle"),
+    chapterTitle: document.getElementById("chapterTitle"),
+    chapterNumber: document.getElementById("chapterNumber"),
+    progressFill: document.getElementById("progressFill"),
+    progressText: document.getElementById("progressText")
+};
 
 /*==================================================
-STATE
+APPLICATION STATE
 ==================================================*/
 
 const state = {
-
-    chapter:0,
-
-    page:0,
-
-    animating:false,
-
-    touchStartX:0,
-
-    touchStartY:0,
-
-    wheelLocked:false
-
+    chapterIndex: 0,
+    ui: {
+        hudVisible: true,
+        hudPinned: true,
+        sidebarOpen: false,
+        fullscreen: false
+    },
+    input: {
+        startX: 0,
+        startY: 0
+    },
+    cache: {
+        images: new Map()
+    }
 };
-   
 
 /*==================================================
 HELPERS
 ==================================================*/
 
-function clamp(value,min,max){
-
-    return Math.min(
-
-        Math.max(value,min),
-
-        max
-
-    );
-
+function wrap(index, length) {
+    return ((index % length) + length) % length;
 }
 
-function pad(number){
-
-    return String(number)
-
-        .padStart(2,"0");
-
+function getChapter(index) {
+    return chapters[wrap(index, chapters.length)];
 }
 
-let mobileUITimer;
-
-function showMobileUI(){
-
-    if(window.innerWidth>768) return;
-
-    document.body.classList.remove("mobile-ui-hidden");
-
-    clearTimeout(mobileUITimer);
-
-    mobileUITimer=setTimeout(hideMobileUI,1500);
-
+function createElement(tag, className = "") {
+    const el = document.createElement(tag);
+    if (className) el.className = className;
+    return el;
 }
-
-function hideMobileUI(){
-
-    if(window.innerWidth>768) return;
-
-    document.body.classList.add("mobile-ui-hidden");
-
-}
-
 
 /*==================================================
-SIDEBAR
+IMAGE CACHE
 ==================================================*/
 
-function buildSidebar(){
+async function loadImage(src) {
+    if (state.cache.images.has(src)) {
+        return state.cache.images.get(src);
+    }
+    const image = new Image();
+    image.src = src;
+    try {
+        await image.decode();
+    } catch {
+        await new Promise((resolve, reject) => {
+            image.onload = resolve;
+            image.onerror = reject;
+        });
+    }
+    state.cache.images.set(src, image);
+    return image;
+}
 
-    trackList.innerHTML="";
+async function preloadChapter(index) {
+    const chapter = getChapter(index);
+    if (!chapter) return;
+    await Promise.all(chapter.pages.map(loadImage));
+}
 
-    chapters.forEach((chapter,index)=>{
+async function preloadWindow(centerIndex, radius = CONFIG.preloadRadius) {
+    const tasks = [];
+    for (let offset = -radius; offset <= radius; offset++) {
+        tasks.push(preloadChapter(centerIndex + offset));
+    }
+    await Promise.all(tasks);
+}
 
-        const button=document.createElement("button");
+function warmPreload(centerIndex) {
+    // fire-and-forget background warming, doesn't block navigation
+    preloadWindow(centerIndex).catch(() => {});
+}
 
-        button.className="track";
+function createPageImage(src) {
+    const cached = state.cache.images.get(src);
+    const image = cached ? cached.cloneNode() : new Image();
+    if (!cached) {
+        image.src = src;
+        loadImage(src).catch(() => {});
+    }
+    image.classList.add("loaded");
+    return image;
+}
 
-        button.innerHTML=`
+/*==================================================
+LOOP STACK
+A reusable persistent 3-slot infinite carousel.
+Used both for the vertical chapter stack and the
+horizontal page carousel nested inside each chapter.
+==================================================*/
 
-            <span>${pad(index+1)}</span>
+class LoopStack {
 
-            <span>${chapter.title}</span>
+    constructor({ container, axis, getIndex, renderSlot, onSettle }) {
+        this.container = container;
+        this.axis = axis; // 'x' (pages) or 'y' (chapters)
+        this.getIndex = getIndex;
+        this.renderSlot = renderSlot;
+        this.onSettle = onSettle || (() => {});
+        this.animating = false;
+        this._build();
+    }
 
-        `;
+    _build() {
+        this.track = createElement("div", "loop-track");
+        Object.assign(this.track.style, {
+            position: "relative",
+            width: "100%",
+            height: "100%"
+        });
+        this.container.appendChild(this.track);
 
-        button.addEventListener("click",()=>{
-
-            if(index===state.chapter) return;
-
-            state.chapter=index;
-
-            state.page=0;
-
-            renderChapter();
-
-            closeSidebar();
-
+        this.order = [0, 1, 2].map(() => {
+            const el = createElement("div", "loop-slot");
+            Object.assign(el.style, {
+                position: "absolute",
+                top: "0",
+                left: "0",
+                width: "100%",
+                height: "100%",
+                willChange: "transform"
+            });
+            this.track.appendChild(el);
+            return el;
         });
 
-        trackList.appendChild(button);
+        this._snapPositions();
+        this._fillAll();
+    }
 
-    });
+    _offsetFor(role) {
+        // role: -1 previous, 0 current, 1 next (or further during animation)
+        const percent = role * 100;
+        return this.axis === "x"
+            ? `translateX(${percent}%)`
+            : `translateY(${percent}%)`;
+    }
 
-}
-
-
-/*==================================================
-HUD
-==================================================*/
-
-function updateHUD(){
-
-    chapterTitle.textContent=
-
-        chapters[state.chapter].title;
-
-    chapterNumber.textContent=
-
-        pad(state.chapter+1);
-
-    progressFill.style.width=
-
-        `${((state.chapter+1)/chapters.length)*100}%`;
-
-    progressText.textContent=
-
-        `${state.chapter+1} / ${chapters.length}`;
-
-    document
-
-        .querySelectorAll(".track")
-
-        .forEach((track,index)=>{
-
-            track.classList.toggle(
-
-                "active",
-
-                index===state.chapter
-
-            );
-
+    _snapPositions() {
+        this.order.forEach((el, i) => {
+            const role = i - 1;
+            el.style.transition = "none";
+            el.style.transform = this._offsetFor(role);
         });
+    }
 
+    _fillAll() {
+        const idx = this.getIndex();
+        this.order.forEach((el, i) => {
+            const role = i - 1;
+            this.renderSlot(el, idx + role);
+        });
+    }
+
+    // Rebuilds slot contents in place without animation
+    // (used for direct jumps, e.g. sidebar navigation).
+    jumpTo() {
+        this._snapPositions();
+        this._fillAll();
+    }
+
+    // Refreshes only the currently-visible (middle) slot,
+    // e.g. after external state changes.
+    refreshCurrent() {
+        this.renderSlot(this.order[1], this.getIndex());
+    }
+
+    // direction: 1 = advance forward, -1 = go backward
+    // afterIndexUpdate: callback that updates external state and
+    // returns the new logical center index.
+    advance(direction, afterIndexUpdate) {
+        if (this.animating) return Promise.resolve(false);
+        this.animating = true;
+
+        return new Promise((resolve) => {
+            const outgoingSlotPos = direction === 1 ? 0 : 2;
+            const outgoingEl = this.order[outgoingSlotPos];
+
+            // Instantly relocate the outgoing (about-to-be-recycled)
+            // slot to the far side, then paint it with the content
+            // it is about to assume.
+            outgoingEl.style.transition = "none";
+            const farRole = direction === 1 ? 2 : -2;
+            outgoingEl.style.transform = this._offsetFor(farRole);
+            // force reflow so the "none" transition + far position commits
+            void outgoingEl.offsetHeight;
+
+            const newIndex = afterIndexUpdate();
+            const newContentIndex = direction === 1 ? newIndex + 1 : newIndex - 1;
+            this.renderSlot(outgoingEl, newContentIndex);
+
+            requestAnimationFrame(() => {
+                this.order.forEach((el) => {
+                    el.style.transition = `transform ${CONFIG.transitionDuration}ms ease`;
+                });
+                void this.track.offsetHeight; // reflow before changing targets
+
+                this.order.forEach((el, i) => {
+                    const role = i - 1;
+                    const targetRole =
+                        el === outgoingEl
+                            ? (direction === 1 ? 1 : -1)
+                            : role - direction;
+                    el.style.transform = this._offsetFor(targetRole);
+                });
+            });
+
+            const handleEnd = (event) => {
+                if (event.target !== outgoingEl && event.propertyName !== "transform") return;
+                this.track.removeEventListener("transitionend", handleEnd);
+
+                if (direction === 1) {
+                    this.order.push(this.order.shift());
+                } else {
+                    this.order.unshift(this.order.pop());
+                }
+                this._snapPositions();
+                this.animating = false;
+                this.onSettle();
+                resolve(true);
+            };
+
+            this.track.addEventListener("transitionend", handleEnd);
+        });
+    }
 }
 
-
 /*==================================================
-RENDER
+PAGE (HORIZONTAL) RENDERING — nested per chapter slot
 ==================================================*/
 
-function renderChapter(){
+function renderPageSlot(chapterSlotEl, pageEl, pageIndex) {
+    const chapter = chapterSlotEl._chapter;
+    pageEl.innerHTML = "";
+    if (!chapter || !chapter.pages.length) return;
+    const total = chapter.pages.length;
+    const wrapped = wrap(pageIndex, total);
+    const page = createElement("div", "page");
+    page.appendChild(createPageImage(chapter.pages[wrapped]));
+    pageEl.appendChild(page);
+}
 
-    viewer.innerHTML="";
+function attachPageLoop(chapterSlotEl, carouselEl) {
+    chapterSlotEl._pageLoop = new LoopStack({
+        container: carouselEl,
+        axis: "x",
+        getIndex: () => chapterSlotEl._pageIndex || 0,
+        renderSlot: (pageEl, pageIndex) => renderPageSlot(chapterSlotEl, pageEl, pageIndex)
+    });
+}
 
-    const chapter=
+/*==================================================
+CHAPTER (VERTICAL) RENDERING
+==================================================*/
 
-        chapters[state.chapter];
+function renderChapterSlot(slotEl, chapterIndex) {
+    const idx = wrap(chapterIndex, chapters.length);
+    const chapter = chapters[idx];
 
-    const pages=[
+    slotEl.dataset.chapterIndex = String(idx);
+    slotEl._chapterIndex = idx;
+    slotEl._chapter = chapter;
+    slotEl._pageIndex = 0;
 
-        chapter.card,
+    if (!slotEl._pageLoop) {
+        // Build the persistent inner structure exactly once per slot.
+        slotEl.innerHTML = "";
+        const section = createElement("section", "chapter");
+        const carousel = createElement("div", "carousel");
+        section.appendChild(carousel);
+        slotEl.appendChild(section);
+        attachPageLoop(slotEl, carousel);
+    } else {
+        // Reuse the existing nested loop, just point it at new content.
+        slotEl._pageLoop.jumpTo();
+    }
+}
 
-        ...chapter.analysis
+/*==================================================
+VIEWER BOOTSTRAP
+==================================================*/
 
-    ];
+let chapterLoop = null;
 
-    const slides=[
-
-        pages[pages.length-1],
-
-        ...pages,
-
-        pages[0]
-
-    ];
-
-    const wrapper=
-
-        document.createElement("section");
-
-    wrapper.className="chapter";
-
-    const carousel=
-
-        document.createElement("div");
-
-    carousel.className="carousel";
-
-    const track=
-
-        document.createElement("div");
-
-    track.className="carousel-track";
-
-    slides.forEach((image,index)=>{
-
-        const page=
-
-            document.createElement("div");
-
-        page.className="page";
-
-        if(index===1){
-
-            page.classList.add("active");
-
-        }
-
-        const img=
-
-            document.createElement("img");
-
-        img.src=image;
-
-        img.draggable=false;
-
-        page.appendChild(img);
-
-        track.appendChild(page);
-
+function buildViewer() {
+    dom.viewer.innerHTML = "";
+    Object.assign(dom.viewer.style, {
+        position: "relative",
+        overflow: "hidden",
+        width: "100%",
+        height: "100%"
     });
 
-    carousel.appendChild(track);
-
-    wrapper.appendChild(carousel);
-
-    viewer.appendChild(wrapper);
-
-    track.style.transform=
-
-        "translateX(-100%)";
-
-        updateHUD();
-
-    initialiseCarousel(track,pages.length);
-
+    chapterLoop = new LoopStack({
+        container: dom.viewer,
+        axis: "y",
+        getIndex: () => state.chapterIndex,
+        renderSlot: renderChapterSlot,
+        onSettle: () => {
+            updateUI();
+            warmPreload(state.chapterIndex);
+        }
+    });
 }
 
+function currentChapterSlot() {
+    return chapterLoop.order[1];
+}
 
 /*==================================================
-CAROUSEL
+PAGE NAVIGATION
 ==================================================*/
 
-let carouselTrack=null;
-
-let carouselPages=0;
-
-let currentIndex=1;
-
-
-function initialiseCarousel(track,totalPages){
-
-    carouselTrack=track;
-
-    carouselPages=totalPages;
-
-    currentIndex=1;
-
-    moveCarousel(false);
-
+async function nextPage() {
+    const slot = currentChapterSlot();
+    const loop = slot._pageLoop;
+    if (!loop || loop.animating || !slot._chapter) return;
+    const total = slot._chapter.pages.length;
+    await loop.advance(1, () => {
+        slot._pageIndex = wrap((slot._pageIndex || 0) + 1, total);
+        return slot._pageIndex;
+    });
+    updateUI();
 }
 
-
-function moveCarousel(animated=true){
-
-    if(animated){
-
-        carouselTrack.style.transition=
-
-            "transform 220ms cubic-bezier(.22,1,.36,1)";
-
-    }
-
-    else{
-
-        carouselTrack.style.transition="none";
-
-    }
-
-    carouselTrack.style.transform=
-
-        `translateX(-${currentIndex*100}%)`;
-
+async function previousPage() {
+    const slot = currentChapterSlot();
+    const loop = slot._pageLoop;
+    if (!loop || loop.animating || !slot._chapter) return;
+    const total = slot._chapter.pages.length;
+    await loop.advance(-1, () => {
+        slot._pageIndex = wrap((slot._pageIndex || 0) - 1, total);
+        return slot._pageIndex;
+    });
+    updateUI();
 }
 
-
-function nextPage(){
-
-    if(state.animating) return;
-
-    if(carouselPages===1) return;
-
-    state.animating=true;
-
-    currentIndex++;
-
-    moveCarousel();
-
+function goToPage(index) {
+    const slot = currentChapterSlot();
+    if (!slot._chapter) return;
+    slot._pageIndex = wrap(index, slot._chapter.pages.length);
+    slot._pageLoop.jumpTo();
+    updateUI();
 }
 
-
-function previousPage(){
-
-    if(state.animating) return;
-
-    if(carouselPages===1) return;
-
-    state.animating=true;
-
-    currentIndex--;
-
-    moveCarousel();
-
+function firstPage() {
+    goToPage(0);
 }
 
+function lastPage() {
+    const slot = currentChapterSlot();
+    if (!slot._chapter) return;
+    goToPage(slot._chapter.pages.length - 1);
+}
 
-document.addEventListener(
+function pageCount() {
+    const slot = currentChapterSlot();
+    return slot._chapter ? slot._chapter.pages.length : 0;
+}
 
-    "transitionend",
-
-    event=>{
-
-        if(
-
-            !carouselTrack ||
-
-            event.target!==carouselTrack
-
-        ) return;
-
-        if(currentIndex===0){
-
-            currentIndex=
-
-                carouselPages;
-
-            moveCarousel(false);
-
-        }
-
-        if(
-
-            currentIndex===
-
-            carouselPages+1
-
-        ){
-
-            currentIndex=1;
-
-            moveCarousel(false);
-
-        }
-
-        requestAnimationFrame(()=>{
-
-            const pages=
-
-                carouselTrack.querySelectorAll(".page");
-
-            pages.forEach(page=>
-
-                page.classList.remove("active")
-
-            );
-
-            if(pages[currentIndex]){
-
-                pages[currentIndex]
-
-                    .classList.add("active");
-
-            }
-
-            state.page=currentIndex-1;
-
-            state.animating=false;
-
-               });
-
-    }
-
-);
-
+function currentPage() {
+    return currentChapterSlot()._pageIndex || 0;
+}
 
 /*==================================================
 CHAPTER NAVIGATION
 ==================================================*/
 
-function animateChapter(direction){
+async function nextChapter() {
+    if (chapterLoop.animating) return;
+    await chapterLoop.advance(1, () => {
+        state.chapterIndex = wrap(state.chapterIndex + 1, chapters.length);
+        return state.chapterIndex;
+    });
+}
 
-    if(state.animating) return;
+async function previousChapter() {
+    if (chapterLoop.animating) return;
+    await chapterLoop.advance(-1, () => {
+        state.chapterIndex = wrap(state.chapterIndex - 1, chapters.length);
+        return state.chapterIndex;
+    });
+}
 
-    state.animating=true;
+function goToChapter(index) {
+    const target = wrap(index, chapters.length);
+    if (target === state.chapterIndex || chapterLoop.animating) return;
+    state.chapterIndex = target;
+    chapterLoop.jumpTo();
+    warmPreload(state.chapterIndex);
+    updateUI();
+}
 
-    const current=
+/*==================================================
+SIDEBAR
+==================================================*/
 
-        viewer.querySelector(".chapter");
+function openSidebar() {
+    state.ui.sidebarOpen = true;
+    dom.sidebar.classList.add("open");
+    dom.overlay.classList.add("show");
+}
 
-    if(!current){
+function closeSidebar() {
+    state.ui.sidebarOpen = false;
+    dom.sidebar.classList.remove("open");
+    dom.overlay.classList.remove("show");
+}
 
-        state.animating=false;
+function toggleSidebar() {
+    state.ui.sidebarOpen ? closeSidebar() : openSidebar();
+}
 
-        return;
-
-    }
-
-    current.style.transition=
-
-        "transform 300ms cubic-bezier(.22,1,.36,1), opacity 300ms ease";
-
-    current.style.transform=
-
-        direction==="next"
-
-        ?
-
-        "translateY(-80px)"
-
-        :
-
-        "translateY(80px)";
-
-    current.style.opacity="0";
-
-    setTimeout(()=>{
-
-        renderChapter();
-
-        const incoming=
-
-            viewer.querySelector(".chapter");
-
-        incoming.style.transition="none";
-
-        incoming.style.transform=
-
-            direction==="next"
-
-            ?
-
-            "translateY(80px)"
-
-            :
-
-            "translateY(-80px)";
-
-        incoming.style.opacity="0";
-
-        requestAnimationFrame(()=>{
-
-            incoming.style.transition=
-
-                "transform 300ms cubic-bezier(.22,1,.36,1), opacity 300ms ease";
-
-            incoming.style.transform="translateY(0)";
-
-            incoming.style.opacity="1";
-
+function buildTrackList() {
+    dom.trackList.innerHTML = "";
+    chapters.forEach((chapter, index) => {
+        const button = createElement("button", "track");
+        if (index === state.chapterIndex) button.classList.add("active");
+        button.innerHTML = `
+            <div class="track-info">
+                <span class="track-number">${String(index + 1).padStart(2, "0")}</span>
+                <span class="track-title">${chapter.title}</span>
+            </div>
+            <span class="track-pages">${chapter.pages.length}</span>
+        `;
+        button.addEventListener("click", () => {
+            closeSidebar();
+            goToChapter(index);
         });
-
-        setTimeout(()=>{
-
-            state.animating=false;
-
-        },300);
-
-    },300);
-
+        dom.trackList.appendChild(button);
+    });
 }
 
-
-
-function nextChapter(){
-
-    if(state.chapter>=chapters.length-1) return;
-
-    state.chapter++;
-
-    state.page=0;
-
-    animateChapter("next");
-
+function updateTrackList() {
+    const tracks = dom.trackList.querySelectorAll(".track");
+    tracks.forEach((track, index) => {
+        track.classList.toggle("active", index === state.chapterIndex);
+    });
 }
 
+/*==================================================
+HUD
+==================================================*/
 
+function updateHUD() {
+    const chapter = getChapter(state.chapterIndex);
+    dom.albumTitle.textContent = "MR. MORALE & THE BIG STEPPERS";
+    dom.chapterTitle.textContent = chapter.title;
+    dom.chapterNumber.textContent = `${state.chapterIndex + 1}/${chapters.length}`;
+}
 
-function previousChapter(){
+function updateProgress() {
+    const percent = ((state.chapterIndex + 1) / chapters.length) * 100;
+    dom.progressFill.style.width = `${percent}%`;
+    dom.progressText.textContent = `${state.chapterIndex + 1} of ${chapters.length}`;
+}
 
-    if(state.chapter<=0) return;
+function updateUI() {
+    updateHUD();
+    updateProgress();
+    updateTrackList();
+}
 
-    state.chapter--;
+/*==================================================
+HUD VISIBILITY
+==================================================*/
 
-    state.page=0;
+let hudTimer = null;
 
-    animateChapter("previous");
+function showHUD(pin = false) {
+    document.body.classList.remove("reader-ui-hidden");
+    state.ui.hudVisible = true;
+    if (pin) {
+        state.ui.hudPinned = true;
+        clearTimeout(hudTimer);
+        return;
+    }
+    restartHUDTimer();
+}
 
+function hideHUD() {
+    if (state.ui.hudPinned) return;
+    document.body.classList.add("reader-ui-hidden");
+    state.ui.hudVisible = false;
+}
+
+function restartHUDTimer() {
+    clearTimeout(hudTimer);
+    if (state.ui.hudPinned) return;
+    hudTimer = setTimeout(hideHUD, CONFIG.hudHideDelay);
+}
+
+function toggleHUD() {
+    if (state.ui.hudVisible) {
+        state.ui.hudPinned = false;
+        hideHUD();
+    } else {
+        showHUD(true);
+    }
+}
+
+/*==================================================
+BUTTONS
+==================================================*/
+
+function bindButtons() {
+    dom.nextPageButton?.addEventListener("click", nextPage);
+    dom.previousPageButton?.addEventListener("click", previousPage);
+    dom.nextChapterButton?.addEventListener("click", nextChapter);
+    dom.previousChapterButton?.addEventListener("click", previousChapter);
+    dom.menuButton?.addEventListener("click", openSidebar);
+    dom.closeSidebar?.addEventListener("click", closeSidebar);
+    dom.overlay?.addEventListener("click", closeSidebar);
+    dom.toggleHUDButton?.addEventListener("click", toggleHUD);
 }
 
 /*==================================================
 KEYBOARD
 ==================================================*/
 
-document.addEventListener(
-
-    "keydown",
-
-    event=>{
-
-        switch(event.key){
-
-            case "ArrowLeft":
-
-                previousPage();
-                showMobileUI();
-
-                break;
-
-            case "ArrowRight":
-
-                nextPage();
-                showMobileUI();
-
-                break;
-
-            case "ArrowUp":
-
-                event.preventDefault();
-
-                previousChapter();
-                showMobileUI();
-                break;
-
-            case "ArrowDown":
-
-                event.preventDefault();
-
-                nextChapter();
-                showMobileUI();
-
-                break;
-
-        }
-
+function handleKeyDown(event) {
+    switch (event.key) {
+        case "ArrowRight": nextPage(); break;
+        case "ArrowLeft": previousPage(); break;
+        case "ArrowDown": nextChapter(); break;
+        case "ArrowUp": previousChapter(); break;
+        case "Escape": closeSidebar(); break;
+        case " ": event.preventDefault(); toggleHUD(); break;
     }
+}
 
-);
-
+function bindKeyboard() {
+    window.addEventListener("keydown", handleKeyDown);
+}
 
 /*==================================================
 MOUSE WHEEL
 ==================================================*/
 
-let wheelAccumulator=0;
-
-const WHEEL_THRESHOLD=60;
-
-
-window.addEventListener(
-
-    "wheel",
-
-    event=>{
-
-        event.preventDefault();
-
-        if(state.animating) return;
-
-        wheelAccumulator+=event.deltaY;
-
-        if(
-
-            Math.abs(wheelAccumulator)
-
-            <
-
-            WHEEL_THRESHOLD
-
-        ){
-
-            return;
-
-        }
-
-        if(wheelAccumulator>0){
-
-            nextChapter();
-            showMobileUI();
-
-        }
-
-        else{
-
-            previousChapter();
-            showMobileUI();
-
-        }
-
-        wheelAccumulator=0;
-
-    },
-
-       {
-
-        passive:false
-
-    }
-
-);
-
-
-/*==================================================
-SIDEBAR
-==================================================*/
-
-function openSidebar(){
-
-    sidebar.classList.add("open");
-
-    overlay.classList.add("show");
-
+function handleWheel(event) {
+    if (Math.abs(event.deltaY) < CONFIG.wheelThreshold) return;
+    event.deltaY > 0 ? nextChapter() : previousChapter();
 }
 
-
-function closeSidebar(){
-
-    sidebar.classList.remove("open");
-
-    overlay.classList.remove("show");
-
+function bindWheel() {
+    dom.viewer.addEventListener("wheel", handleWheel, { passive: true });
 }
-
-
-document
-
-    .getElementById("menuButton")
-
-    .addEventListener(
-
-        "click",
-
-        openSidebar
-
-    );
-
-
-document
-
-    .getElementById("closeSidebar")
-
-    .addEventListener(
-
-        "click",
-
-        closeSidebar
-
-    );
-
-
-overlay.addEventListener(
-
-    "click",
-
-    closeSidebar
-
-);
-
-
-/*==================================================
-FULLSCREEN
-==================================================*/
-
-document
-
-    .getElementById("fullscreenButton")
-
-    .addEventListener(
-
-        "click",
-
-        ()=>{
-
-            if(
-
-                !document.fullscreenElement
-
-            ){
-
-                document.documentElement
-
-                    .requestFullscreen();
-
-            }
-
-            else{
-
-                document.exitFullscreen();
-
-            }
-
-        }
-
-    );
-
 
 /*==================================================
 TOUCH
 ==================================================*/
 
-viewer.addEventListener(
+function handleTouchStart(event) {
+    const touch = event.touches[0];
+    state.input.startX = touch.clientX;
+    state.input.startY = touch.clientY;
+}
 
-    "touchstart",
+function handleTouchEnd(event) {
+    const touch = event.changedTouches[0];
+    const dx = touch.clientX - state.input.startX;
+    const dy = touch.clientY - state.input.startY;
 
-    event=>{
-        
-        showMobileUI();
-        const touch=event.touches[0];
-
-        state.touchStartX=touch.clientX;
-
-        state.touchStartY=touch.clientY;
-
-    },
-
-    {
-
-        passive:true
-
+    if (Math.abs(dx) > Math.abs(dy)) {
+        if (Math.abs(dx) < CONFIG.swipeThreshold) return;
+        dx < 0 ? nextPage() : previousPage();
+    } else {
+        if (Math.abs(dy) < CONFIG.swipeThreshold) return;
+        dy < 0 ? nextChapter() : previousChapter();
     }
+}
 
-);
-
-
-viewer.addEventListener(
-
-    "touchend",
-
-    event=>{
-
-        const touch=
-
-            event.changedTouches[0];
-
-        const dx=
-
-            touch.clientX-
-
-            state.touchStartX;
-
-        const dy=
-
-            touch.clientY-
-
-            state.touchStartY;
-
-        if(
-
-            Math.abs(dx)>
-
-            Math.abs(dy)
-
-        ){
-
-            if(dx<-50){
-
-                nextPage();
-                showMobileUI();
-
-            }
-
-            else if(dx>50){
-
-                previousPage();
-                showMobileUI();
-
-            }
-
-        }
-
-        else{
-
-            if(dy<-60){
-
-                nextChapter();
-                showMobileUI();
-
-            }
-
-            else if(dy>60){
-
-                previousChapter();
-                showMobileUI();
-
-            }
-
-        }
-
-    },
-
-    {
-
-        passive:true
-
-    }
-
-);
-
+function bindTouch() {
+    dom.viewer.addEventListener("touchstart", handleTouchStart, { passive: true });
+    dom.viewer.addEventListener("touchend", handleTouchEnd, { passive: true });
+}
 
 /*==================================================
-STARTUP
+ACTIVITY
 ==================================================*/
 
-buildSidebar();
+function bindActivity() {
+    ["mousemove", "pointerdown", "touchstart"].forEach((type) => {
+        document.addEventListener(type, () => {
+            if (state.ui.hudPinned) return;
+            showHUD();
+        }, { passive: true });
+    });
+}
 
-renderChapter();
+function bindInput() {
+    bindButtons();
+    bindKeyboard();
+    bindWheel();
+    bindTouch();
+    bindActivity();
+}
 
-showMobileUI();
+/*==================================================
+FULLSCREEN
+==================================================*/
 
+async function enterFullscreen() {
+    if (!document.fullscreenEnabled) return;
+    await document.documentElement.requestFullscreen();
+}
 
-window.addEventListener(
+async function exitFullscreen() {
+    if (!document.fullscreenElement) return;
+    await document.exitFullscreen();
+}
 
-    "load",
+async function toggleFullscreen() {
+    document.fullscreenElement ? await exitFullscreen() : await enterFullscreen();
+}
 
-    ()=>{
+function updateFullscreen() {
+    state.ui.fullscreen = Boolean(document.fullscreenElement);
+    dom.fullscreenButton.classList.toggle("hidden", !document.fullscreenEnabled);
+}
 
-        setTimeout(()=>{
+function bindFullscreen() {
+    if (!document.fullscreenEnabled) {
+        dom.fullscreenButton.classList.add("hidden");
+        return;
+    }
+    dom.fullscreenButton.addEventListener("click", toggleFullscreen);
+    document.addEventListener("fullscreenchange", updateFullscreen);
+}
 
-            loader.style.opacity="0";
+/*==================================================
+INITIALIZATION
+==================================================*/
 
-            loader.style.pointerEvents="none";
-
-        },350);
-
+async function initialize() {
+    if (!chapters.length) {
+        console.warn("No chapters configured — populate the `chapters` array.");
+        return;
     }
 
-);
+    await preloadWindow(state.chapterIndex);
+    buildViewer();
+    buildTrackList();
+    updateUI();
+    bindInput();
+    bindFullscreen();
+    updateFullscreen();
+
+    dom.loader.style.opacity = 0;
+    dom.loader.style.visibility = "hidden";
+}
+
+document.addEventListener("DOMContentLoaded", initialize);
