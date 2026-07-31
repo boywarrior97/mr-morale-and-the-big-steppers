@@ -189,7 +189,7 @@ const state = {
     wheelLocked:false
 
 };
-
+   
 
 /*==================================================
 HELPERS
@@ -212,6 +212,28 @@ function pad(number){
     return String(number)
 
         .padStart(2,"0");
+
+}
+
+let mobileUITimer;
+
+function showMobileUI(){
+
+    if(window.innerWidth>768) return;
+
+    document.body.classList.remove("mobile-ui-hidden");
+
+    clearTimeout(mobileUITimer);
+
+    mobileUITimer=setTimeout(hideMobileUI,1500);
+
+}
+
+function hideMobileUI(){
+
+    if(window.innerWidth>768) return;
+
+    document.body.classList.add("mobile-ui-hidden");
 
 }
 
@@ -668,12 +690,14 @@ document.addEventListener(
             case "ArrowLeft":
 
                 previousPage();
+                showMobileUI();
 
                 break;
 
             case "ArrowRight":
 
                 nextPage();
+                showMobileUI();
 
                 break;
 
@@ -682,7 +706,7 @@ document.addEventListener(
                 event.preventDefault();
 
                 previousChapter();
-
+                showMobileUI();
                 break;
 
             case "ArrowDown":
@@ -690,6 +714,7 @@ document.addEventListener(
                 event.preventDefault();
 
                 nextChapter();
+                showMobileUI();
 
                 break;
 
@@ -738,12 +763,14 @@ window.addEventListener(
         if(wheelAccumulator>0){
 
             nextChapter();
+            showMobileUI();
 
         }
 
         else{
 
             previousChapter();
+            showMobileUI();
 
         }
 
@@ -916,12 +943,14 @@ viewer.addEventListener(
             if(dx<-50){
 
                 nextPage();
+                showMobileUI();
 
             }
 
             else if(dx>50){
 
                 previousPage();
+                showMobileUI();
 
             }
 
@@ -932,12 +961,14 @@ viewer.addEventListener(
             if(dy<-60){
 
                 nextChapter();
+                showMobileUI();
 
             }
 
             else if(dy>60){
 
                 previousChapter();
+                showMobileUI();
 
             }
 
@@ -961,6 +992,8 @@ STARTUP
 buildSidebar();
 
 renderChapter();
+
+showMobileUI();
 
 
 window.addEventListener(
