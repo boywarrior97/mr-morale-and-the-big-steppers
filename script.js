@@ -19,9 +19,132 @@ const CONFIG = {
 CHAPTER DATA
 ==================================================*/
 
-// Populate this array with your chapter objects: { title, pages: [srcs...] }
-const chapters = [];
+const chapters = [
 
+    {
+        title:"Mr. Morale & the Big Steppers",
+        card:"01.png",
+        analysis:["02.png"]
+    },
+
+    {
+        title:"United in Grief",
+        card:"03.png",
+        analysis:["04.png"]
+    },
+
+    {
+        title:"N95",
+        card:"05.png",
+        analysis:["06.png"]
+    },
+
+    {
+        title:"Worldwide Steppers",
+        card:"07.png",
+        analysis:["08.png"]
+    },
+
+    {
+        title:"Die Hard",
+        card:"09.png",
+        analysis:["10.png"]
+    },
+
+    {
+        title:"Father Time",
+        card:"11.png",
+        analysis:["12.png"]
+    },
+
+    {
+        title:"Rich (Interlude)",
+        card:"13.png",
+        analysis:["14.png"]
+    },
+
+    {
+        title:"Rich Spirit",
+        card:"15.png",
+        analysis:["16.png"]
+    },
+
+    {
+        title:"We Cry Together",
+        card:"17.png",
+        analysis:["18.png"]
+    },
+
+    {
+        title:"Purple Hearts",
+        card:"19.png",
+        analysis:["20.png"]
+    },
+
+    {
+        title:"Count Me Out",
+        card:"21.png",
+        analysis:["22.png"]
+    },
+
+    {
+        title:"Crown",
+        card:"23.png",
+        analysis:["24.png"]
+    },
+
+    {
+        title:"Silent Hill",
+        card:"25.png",
+        analysis:["26.png"]
+    },
+
+    {
+        title:"Savior (Interlude)",
+        card:"27.png",
+        analysis:["28.png"]
+    },
+
+    {
+        title:"Savior",
+        card:"29.png",
+        analysis:["30.png"]
+    },
+
+    {
+        title:"Auntie Diaries",
+        card:"31.png",
+        analysis:[
+            "32.png",
+            "33.png"
+        ]
+    },
+
+    {
+        title:"Mr. Morale",
+        card:"34.png",
+        analysis:["35.png"]
+    },
+
+    {
+        title:"Mother I Sober",
+        card:"36.png",
+        analysis:["37.png"]
+    },
+
+    {
+        title:"Mirror",
+        card:"38.png",
+        analysis:["39.png"]
+    },
+
+    {
+        title:"The End",
+        card:"40.png",
+        analysis:[]
+    }
+
+];
 /*==================================================
 DOM REFERENCES
 ==================================================*/
