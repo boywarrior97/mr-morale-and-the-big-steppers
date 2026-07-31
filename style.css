@@ -539,7 +539,7 @@ PAGE
 
     height:auto;
 
-    max-width:calc(100vw-140px);
+    max-width:calc(100vw - 140px);
 
     max-height:calc(100vh - 140px);
 
