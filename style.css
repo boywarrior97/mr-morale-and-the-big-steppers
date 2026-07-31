@@ -59,7 +59,7 @@ body{
 
     overscroll-behavior:none;
 
-    touch-action:none;
+    
 
 }
 
@@ -680,6 +680,14 @@ VIEWER
 
     overflow:hidden;
 
+    touch-action:none;
+    
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
     transition:
 
         top var(--transition),
@@ -730,6 +738,8 @@ CHAPTER STACK
 
     overflow:hidden;
 
+    contain:layout paint;
+
 }
 
 
@@ -753,6 +763,8 @@ CAROUSEL
     height:100%;
 
     overflow:hidden;
+
+    contain:layout;
 
 }
 
@@ -790,7 +802,11 @@ PAGES
 
     align-items:center;
 
-    padding:24px;
+    padding:
+
+        calc(var(--image-margin-y)/2)
+
+        calc(var(--image-margin-x)/2);
 
 }
 
@@ -803,13 +819,9 @@ PAGES
 
     height:auto;
 
-    max-width:
+    max-width:100%;
 
-        calc(100vw - var(--image-margin-x));
-
-    max-height:
-
-        calc(100vh - var(--image-margin-y));
+    max-height:100%;
 
     object-fit:contain;
 
@@ -1010,7 +1022,7 @@ MOBILE
 
         --image-margin-x:28px;
 
-        --image-margin-y:110px;
+        --image-margin-y:80px;
 
     }
 
