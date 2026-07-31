@@ -1,6 +1,6 @@
 /*==================================================
 MR. MORALE & THE BIG STEPPERS
-Editorial Reader V3
+Editorial Reader V4
 ==================================================*/
 
 
@@ -13,34 +13,53 @@ RESET
 *::after{
 
     margin:0;
+
     padding:0;
+
     box-sizing:border-box;
 
 }
+
 
 html,
 body{
 
     width:100%;
+
     height:100%;
 
     overflow:hidden;
 
 }
 
+
+html{
+
+    -webkit-text-size-adjust:100%;
+
+    scroll-behavior:smooth;
+
+}
+
+
 body{
 
     background:#050505;
 
-    color:#fff;
+    color:#ffffff;
 
     font-family:
 
         Inter,
-
         sans-serif;
 
     -webkit-font-smoothing:antialiased;
+
+    text-rendering:optimizeLegibility;
+
+    overscroll-behavior:none;
+
+    touch-action:none;
 
 }
 
@@ -51,30 +70,48 @@ VARIABLES
 
 :root{
 
-    --bg:#050505;
+    --background:#050505;
 
-    --panel:#101010;
+    --surface:#101010;
+
+    --surface-light:#181818;
 
     --border:rgba(255,255,255,.08);
 
-    --text:#fff;
+    --border-strong:rgba(255,255,255,.15);
 
-    --muted:#8f8f8f;
+    --text:#ffffff;
+
+    --muted:#8d8d8d;
 
     --radius:14px;
 
+    --hud-height:72px;
+
+    --controls-height:58px;
+
+    --viewer-top:72px;
+
+    --viewer-bottom:58px;
+
+    --image-margin-x:140px;
+
+    --image-margin-y:140px;
+
     --transition:
 
-        .28s cubic-bezier(.22,1,.36,1);
+        .30s cubic-bezier(.22,1,.36,1);
 
 }
 
 
 /*==================================================
-BUTTONS
+ELEMENTS
 ==================================================*/
 
 button{
+
+    appearance:none;
 
     border:none;
 
@@ -82,9 +119,44 @@ button{
 
     color:inherit;
 
+    font:inherit;
+
     cursor:pointer;
 
-    font:inherit;
+    user-select:none;
+
+    -webkit-tap-highlight-color:transparent;
+
+}
+
+
+button:focus-visible{
+
+    outline:2px solid rgba(255,255,255,.45);
+
+    outline-offset:3px;
+
+}
+
+
+img{
+
+    display:block;
+
+    max-width:100%;
+
+    user-select:none;
+
+    -webkit-user-drag:none;
+
+}
+
+
+a{
+
+    color:inherit;
+
+    text-decoration:none;
 
 }
 
@@ -99,19 +171,24 @@ LOADER
 
     inset:0;
 
-    background:#050505;
-
     display:flex;
 
     justify-content:center;
 
     align-items:center;
 
+    background:var(--background);
+
     z-index:9999;
 
-    transition:.5s ease;
+    transition:
+
+        opacity .45s ease,
+
+        visibility .45s ease;
 
 }
+
 
 .loader-content{
 
@@ -119,25 +196,65 @@ LOADER
 
 }
 
+
 .loader-content h1{
 
     font-size:2rem;
 
-    line-height:1.15;
+    font-weight:600;
 
-    margin-bottom:18px;
+    line-height:1.15;
 
 }
 
+
 .loader-content p{
 
-    color:#777;
+    margin-top:18px;
+
+    color:var(--muted);
 
     text-transform:uppercase;
 
     letter-spacing:.18em;
 
     font-size:.8rem;
+
+}
+
+
+/*==================================================
+OVERLAY
+==================================================*/
+
+#overlay{
+
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(0,0,0,.45);
+
+    backdrop-filter:blur(4px);
+
+    opacity:0;
+
+    pointer-events:none;
+
+    transition:
+
+        opacity var(--transition);
+
+    z-index:250;
+
+}
+
+
+#overlay.show{
+
+    opacity:1;
+
+    pointer-events:auto;
 
 }
 
@@ -156,7 +273,7 @@ HUD
 
     right:0;
 
-    height:72px;
+    height:var(--hud-height);
 
     display:flex;
 
@@ -166,27 +283,59 @@ HUD
 
     padding:0 28px;
 
-    backdrop-filter:blur(16px);
+    background:
 
-    background:rgba(5,5,5,.65);
+        linear-gradient(
 
-    border-bottom:1px solid var(--border);
+            to bottom,
 
-    z-index:100;
+            rgba(5,5,5,.88),
+
+            rgba(5,5,5,.55)
+
+        );
+
+    backdrop-filter:blur(18px);
+
+    border-bottom:
+
+        1px solid var(--border);
+
+    z-index:300;
+
+    transition:
+
+        opacity var(--transition),
+
+        transform var(--transition);
 
 }
+
 
 #hudCenter{
 
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:4px;
+
     text-align:center;
+
+    flex:1;
 
 }
 
+
 #albumTitle{
 
-    font-size:.72rem;
+    color:var(--muted);
 
-    color:#8f8f8f;
+    font-size:.72rem;
 
     letter-spacing:.18em;
 
@@ -194,9 +343,8 @@ HUD
 
 }
 
-#chapterTitle{
 
-    margin-top:4px;
+#chapterTitle{
 
     font-size:1rem;
 
@@ -204,36 +352,62 @@ HUD
 
 }
 
+
 #chapterNumber{
 
-    color:#888;
+    min-width:44px;
 
-    font-size:.8rem;
+    text-align:right;
+
+    color:var(--muted);
+
+    font-size:.82rem;
+
+    letter-spacing:.08em;
 
 }
 
 
 /*==================================================
-MENU
+HUD BUTTONS
 ==================================================*/
 
 #menuButton,
 #closeSidebar{
 
-    width:42px;
+    width:44px;
 
-    height:42px;
+    height:44px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
 
     border-radius:50%;
 
-    transition:var(--transition);
+    transition:
+
+        background var(--transition),
+
+        transform var(--transition);
 
 }
+
 
 #menuButton:hover,
 #closeSidebar:hover{
 
-    background:#1c1c1c;
+    background:rgba(255,255,255,.08);
+
+}
+
+
+#menuButton:active,
+#closeSidebar:active{
+
+    transform:scale(.95);
 
 }
 
@@ -252,29 +426,41 @@ SIDEBAR
 
     width:320px;
 
+    max-width:85vw;
+
     height:100vh;
-
-    background:#0d0d0d;
-
-    border-right:1px solid var(--border);
-
-    transform:translateX(-100%);
-
-    transition:.35s ease;
 
     display:flex;
 
     flex-direction:column;
 
-    z-index:300;
+    background:var(--surface);
+
+    border-right:
+
+        1px solid var(--border);
+
+    transform:translateX(-100%);
+
+    transition:
+
+        transform var(--transition);
+
+    z-index:400;
+
+    box-shadow:
+
+        0 18px 60px rgba(0,0,0,.45);
 
 }
+
 
 #sidebar.open{
 
-    transform:none;
+    transform:translateX(0);
 
 }
+
 
 .sidebar-header{
 
@@ -282,15 +468,27 @@ SIDEBAR
 
     display:flex;
 
-    justify-content:space-between;
-
     align-items:center;
+
+    justify-content:space-between;
 
     padding:0 22px;
 
-    border-bottom:1px solid var(--border);
+    border-bottom:
+
+        1px solid var(--border);
 
 }
+
+
+.sidebar-header h2{
+
+    font-size:1rem;
+
+    font-weight:600;
+
+}
+
 
 #trackList{
 
@@ -298,47 +496,108 @@ SIDEBAR
 
     overflow-y:auto;
 
-    padding:18px;
+    padding:14px 0;
 
 }
+
+
+/*==================================================
+SIDEBAR ITEMS
+==================================================*/
 
 .track{
 
-    width:100%;
-
-    display:grid;
-
-    grid-template-columns:
-
-        42px
-
-        1fr;
-
-    gap:14px;
+    display:flex;
 
     align-items:center;
 
-    padding:14px;
+    justify-content:space-between;
 
-    border-radius:12px;
+    gap:16px;
 
-    transition:var(--transition);
+    width:100%;
 
-    margin-bottom:6px;
+    padding:14px 22px;
+
+    border-left:3px solid transparent;
+
+    transition:
+
+        background var(--transition),
+
+        border-color var(--transition),
+
+        color var(--transition);
 
 }
+
 
 .track:hover{
 
-    background:#181818;
+    background:rgba(255,255,255,.05);
 
 }
 
+
 .track.active{
 
-    background:#242424;
+    background:rgba(255,255,255,.08);
 
-    border:1px solid rgba(255,255,255,.08);
+    border-left-color:#ffffff;
+
+}
+
+
+.track-info{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:4px;
+
+    text-align:left;
+
+    overflow:hidden;
+
+}
+
+
+.track-number{
+
+    color:var(--muted);
+
+    font-size:.72rem;
+
+    letter-spacing:.14em;
+
+    text-transform:uppercase;
+
+}
+
+
+.track-title{
+
+    font-size:.95rem;
+
+    font-weight:500;
+
+    white-space:nowrap;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+}
+
+
+.track-pages{
+
+    color:var(--muted);
+
+    font-size:.75rem;
+
+    flex-shrink:0;
 
 }
 
@@ -349,11 +608,14 @@ SIDEBAR FOOTER
 
 .sidebar-footer{
 
-    padding:20px;
+    padding:20px 22px;
 
-    border-top:1px solid var(--border);
+    border-top:
+
+        1px solid var(--border);
 
 }
+
 
 #progressBar{
 
@@ -361,13 +623,14 @@ SIDEBAR FOOTER
 
     height:4px;
 
-    background:#1b1b1b;
-
     border-radius:999px;
 
     overflow:hidden;
 
+    background:rgba(255,255,255,.08);
+
 }
+
 
 #progressFill{
 
@@ -377,50 +640,24 @@ SIDEBAR FOOTER
 
     background:#ffffff;
 
-    transition:width .3s ease;
+    transition:
+
+        width var(--transition);
 
 }
+
 
 #progressText{
 
     margin-top:12px;
 
-    font-size:.8rem;
+    color:var(--muted);
 
-    color:#8d8d8d;
+    text-align:center;
 
-}
+    font-size:.78rem;
 
-
-/*==================================================
-OVERLAY
-==================================================*/
-
-#overlay{
-
-    position:fixed;
-
-    inset:0;
-
-    background:rgba(0,0,0,.45);
-
-    backdrop-filter:blur(3px);
-
-    opacity:0;
-
-    pointer-events:none;
-
-    transition:opacity .3s ease;
-
-    z-index:250;
-
-}
-
-#overlay.show{
-
-    opacity:1;
-
-    pointer-events:auto;
+    letter-spacing:.08em;
 
 }
 
@@ -428,58 +665,77 @@ OVERLAY
 /*==================================================
 VIEWER
 ==================================================*/
-
-/*==================================================
-VIEWER
-==================================================*/
-
-:root{
-
-    --viewer-top:72px;
-    --viewer-bottom:58px;
-
-}
 
 #viewer{
 
     position:fixed;
 
     top:var(--viewer-top);
-    right:0;
-    bottom:var(--viewer-bottom);
-    left:0;
 
-    display:flex;
-    justify-content:center;
-    align-items:center;
+    right:0;
+
+    bottom:var(--viewer-bottom);
+
+    left:0;
 
     overflow:hidden;
 
     transition:
-        top .3s ease,
-        bottom .3s ease;
+
+        top var(--transition),
+
+        bottom var(--transition);
 
 }
 
+
 /*==================================================
-CURRENT CHAPTER
+CHAPTER STACK
 ==================================================*/
 
+.chapter-stack{
+
+    position:absolute;
+
+    inset:0;
+
+    display:flex;
+
+    flex-direction:column;
+
+    transition:
+
+        transform var(--transition);
+
+    will-change:transform;
+
+}
+
+
 .chapter{
+
+    position:relative;
 
     width:100%;
 
     height:100%;
 
+    flex:0 0 100%;
+
     display:flex;
 
     justify-content:center;
 
     align-items:center;
 
-    animation:
+    overflow:hidden;
 
-        fadeIn .28s ease;
+}
+
+
+.chapter.hidden{
+
+    visibility:hidden;
 
 }
 
@@ -490,47 +746,41 @@ CAROUSEL
 
 .carousel{
 
+    position:relative;
+
     width:100%;
 
     height:100%;
 
     overflow:hidden;
 
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
 }
 
-
-/*==================================================
-TRACK
-==================================================*/
 
 .carousel-track{
 
-    display:flex;
-
     height:100%;
 
-    width:100%;
+    display:flex;
+
+    transition:
+
+        transform var(--transition);
 
     will-change:transform;
-
-    transform:translate3d(0,0,0);
 
 }
 
 
 /*==================================================
-PAGE
+PAGES
 ==================================================*/
 
 .page{
 
-    min-width:100%;
+    flex:0 0 100%;
+
+    width:100%;
 
     height:100%;
 
@@ -540,11 +790,10 @@ PAGE
 
     align-items:center;
 
-    padding:40px;
-
-    user-select:none;
+    padding:24px;
 
 }
+
 
 .page img{
 
@@ -554,45 +803,57 @@ PAGE
 
     height:auto;
 
-    max-width:calc(100vw - 140px);
+    max-width:
 
-    max-height:calc(100vh - 140px);
+        calc(100vw - var(--image-margin-x));
+
+    max-height:
+
+        calc(100vh - var(--image-margin-y));
 
     object-fit:contain;
 
-    border:3px solid #9f9f9f;
+    border:2px solid var(--border-strong);
 
-    border-radius:6px;
+    border-radius:8px;
 
-    background:#9f9f9f;
-
-    box-shadow:
-        0 12px 40px rgba(0,0,0,.35),
-        0 30px 90px rgba(0,0,0,.45);
-
-}
-.page.active img{
-
-    transform:scale(1.01);
+    background:#111111;
 
     box-shadow:
 
-        0 0 0 1px rgba(255,255,255,.15),
+        0 18px 60px rgba(0,0,0,.45);
 
-        0 32px 100px rgba(0,0,0,.55),
+    transition:
 
-        0 70px 180px rgba(0,0,0,.72);
+        max-width var(--transition),
 
-}
+        max-height var(--transition),
 
-.page img:hover{
-
-    transform:scale(1.01);
+        transform .2s ease;
 
 }
 
- /*==================================================
-BOTTOM CONTROLS
+
+.page img.loading{
+
+    opacity:0;
+
+}
+
+
+.page img.loaded{
+
+    opacity:1;
+
+    transition:
+
+        opacity .25s ease;
+
+}
+
+
+/*==================================================
+CONTROLS
 ==================================================*/
 
 #controls{
@@ -605,7 +866,7 @@ BOTTOM CONTROLS
 
     bottom:0;
 
-    height:58px;
+    height:var(--controls-height);
 
     display:flex;
 
@@ -613,40 +874,44 @@ BOTTOM CONTROLS
 
     align-items:center;
 
-    gap:42px;
+    gap:10px;
 
-    background:rgba(5,5,5,.7);
+    padding:0 20px;
 
-    backdrop-filter:blur(16px);
+    background:
 
-    border-top:1px solid var(--border);
+        linear-gradient(
 
-    color:#8d8d8d;
+            to top,
 
-    font-size:.78rem;
+            rgba(5,5,5,.88),
 
-    letter-spacing:.08em;
+            rgba(5,5,5,.55)
 
-    z-index:100;
+        );
+
+    backdrop-filter:blur(18px);
+
+    border-top:
+
+        1px solid var(--border);
+
+    z-index:300;
+
+    transition:
+
+        opacity var(--transition),
+
+        transform var(--transition);
 
 }
 
 
-/*==================================================
-FULLSCREEN
-==================================================*/
+#controls button{
 
-#fullscreenButton{
+    width:42px;
 
-    position:fixed;
-
-    right:28px;
-
-    bottom:82px;
-
-    width:52px;
-
-    height:52px;
+    height:42px;
 
     display:flex;
 
@@ -656,131 +921,178 @@ FULLSCREEN
 
     border-radius:50%;
 
-    background:#161616;
+    transition:
 
-    border:1px solid var(--border);
+        background var(--transition),
 
-    font-size:1.1rem;
-
-    transition:var(--transition);
-
-    z-index:120;
+        transform .18s ease;
 
 }
+
+
+#controls button:hover{
+
+    background:rgba(255,255,255,.08);
+
+}
+
+
+#controls button:active{
+
+    transform:scale(.94);
+
+}
+
+
+/*==================================================
+FULLSCREEN BUTTON
+==================================================*/
+
+#fullscreenButton{
+
+    position:fixed;
+
+    right:22px;
+
+    bottom:82px;
+
+    width:46px;
+
+    height:46px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    border-radius:50%;
+
+    background:rgba(18,18,18,.82);
+
+    backdrop-filter:blur(18px);
+
+    border:
+
+        1px solid var(--border);
+
+    box-shadow:
+
+        0 10px 30px rgba(0,0,0,.35);
+
+    z-index:310;
+
+    transition:
+
+        opacity var(--transition),
+
+        transform var(--transition),
+
+        background var(--transition);
+
+}
+
 
 #fullscreenButton:hover{
 
-    background:#232323;
-
-    transform:scale(1.06);
+    background:rgba(255,255,255,.08);
 
 }
 
 
 /*==================================================
-SCROLLBAR
+MOBILE
 ==================================================*/
 
-#trackList::-webkit-scrollbar{
+@media (max-width:768px){
 
-    width:8px;
+    :root{
 
-}
+        --image-margin-x:28px;
 
-#trackList::-webkit-scrollbar-thumb{
+        --image-margin-y:110px;
 
-    background:#2b2b2b;
+    }
 
-    border-radius:999px;
+    #hud{
 
-}
+        padding:0 16px;
 
-#trackList::-webkit-scrollbar-track{
+    }
 
-    background:transparent;
+    #controls{
+
+        gap:6px;
+
+    }
+
+    #sidebar{
+
+        width:280px;
+
+    }
+
+    #fullscreenButton{
+
+        display:none;
+
+    }
 
 }
 
 
 /*==================================================
-ANIMATIONS
+IMMERSIVE READER MODE
 ==================================================*/
 
-@keyframes fadeIn{
+body.reader-ui-hidden{
 
-    from{
+    --viewer-top:0px;
 
-        opacity:0;
+    --viewer-bottom:0px;
 
-    }
+    --image-margin-x:20px;
 
-    to{
-
-        opacity:1;
-
-    }
+    --image-margin-y:20px;
 
 }
 
-@keyframes fadeOut{
 
-    from{
+body.reader-ui-hidden #hud{
 
-        opacity:1;
+    opacity:0;
 
-    }
+    transform:translateY(-100%);
 
-    to{
-
-        opacity:0;
-
-    }
+    pointer-events:none;
 
 }
 
-@keyframes slideUp{
 
-    from{
+body.reader-ui-hidden #controls{
 
-        opacity:0;
+    opacity:0;
 
-        transform:translateY(40px);
+    transform:translateY(100%);
 
-    }
-
-    to{
-
-        opacity:1;
-
-        transform:translateY(0);
-
-    }
+    pointer-events:none;
 
 }
 
-@keyframes slideDown{
 
-    from{
+body.reader-ui-hidden #fullscreenButton{
 
-        opacity:0;
+    opacity:0;
 
-        transform:translateY(-40px);
+    transform:translateY(20px);
 
-    }
-
-    to{
-
-        opacity:1;
-
-        transform:translateY(0);
-
-    }
+    pointer-events:none;
 
 }
 
 
 /*==================================================
-UTILITY
+UTILITY CLASSES
 ==================================================*/
 
 .hidden{
@@ -789,98 +1101,25 @@ UTILITY
 
 }
 
-.no-transition{
+
+.invisible{
+
+    visibility:hidden !important;
+
+}
+
+
+.no-transition,
+.no-transition *{
 
     transition:none !important;
 
 }
 
-.no-select{
-
-    user-select:none;
-
-}
-
 
 /*==================================================
-RESPONSIVE
+REDUCED MOTION
 ==================================================*/
-
-@media (max-width:1100px){
-
-    .page{
-
-        padding:28px;
-
-    }
-
-    #sidebar{
-
-        width:290px;
-
-    }
-
-}
-
-@media (max-width:768px){
-
-    #hud{
-
-        padding:0 18px;
-
-    }
-
-    #albumTitle{
-
-        display:none;
-
-    }
-
-    #controls{
-
-        gap:18px;
-
-        font-size:.7rem;
-
-    }
-
-    #sidebar{
-
-        width:100%;
-
-    }
-
-    .page{
-
-        padding:16px;
-
-    }
-
-    .page img{
-
-    border:1px solid rgba(255,255,255,.05);
-
-    border-radius:3px;
-
-    box-shadow:
-
-        0 10px 35px rgba(0,0,0,.35);
-
-}
-
-    #fullscreenButton{
-
-        width:46px;
-
-        height:46px;
-
-        right:18px;
-
-        bottom:76px;
-
-    }
-
-}
 
 @media (prefers-reduced-motion:reduce){
 
@@ -896,51 +1135,7 @@ RESPONSIVE
 
 }
 
+
 /*==================================================
-MOBILE READER MODE
+END OF STYLESHEET
 ==================================================*/
-
-@media (max-width:768px){
-
-    body.mobile-ui-hidden{
-
-        --viewer-top:0px;
-        --viewer-bottom:0px;
-
-    }
-
-    body.mobile-ui-hidden #hud{
-
-        opacity:0;
-        transform:translateY(-100%);
-        pointer-events:none;
-
-    }
-
-    body.mobile-ui-hidden #controls{
-
-        opacity:0;
-        transform:translateY(100%);
-        pointer-events:none;
-
-    }
-
-    body.mobile-ui-hidden #fullscreenButton{
-
-        opacity:0;
-        transform:translateY(20px);
-        pointer-events:none;
-
-    }
-
-}
-
-#hud,
-#controls,
-#fullscreenButton{
-
-    transition:
-        opacity .3s ease,
-        transform .3s ease;
-
-}
