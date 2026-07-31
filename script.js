@@ -890,10 +890,9 @@ viewer.addEventListener(
     "touchstart",
 
     event=>{
-
-        const touch=
-
-            event.touches[0];
+        
+        showMobileUI();
+        const touch=event.touches[0];
 
         state.touchStartX=touch.clientX;
 
