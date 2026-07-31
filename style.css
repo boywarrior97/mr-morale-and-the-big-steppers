@@ -670,29 +670,17 @@ VIEWER
 
     position:fixed;
 
-    top:var(--viewer-top);
-
-    right:0;
-
-    bottom:var(--viewer-bottom);
-
-    left:0;
+    inset:0;
 
     overflow:hidden;
 
     touch-action:none;
-    
+
     display:flex;
 
     justify-content:center;
 
     align-items:center;
-
-    transition:
-
-        top var(--transition),
-
-        bottom var(--transition);
 
 }
 
