@@ -429,10 +429,13 @@ OVERLAY
 VIEWER
 ==================================================*/
 
+/*==================================================
+VIEWER
+==================================================*/
+
 :root{
 
     --viewer-top:72px;
-
     --viewer-bottom:58px;
 
 }
@@ -441,32 +444,22 @@ VIEWER
 
     position:fixed;
 
-    inset:var(--viewer-top) 0 var(--viewer-bottom) 0;
+    top:var(--viewer-top);
+    right:0;
+    bottom:var(--viewer-bottom);
+    left:0;
 
     display:flex;
-
     justify-content:center;
-
     align-items:center;
 
     overflow:hidden;
 
-    transition:inset .3s ease;
+    transition:
+        top .3s ease,
+        bottom .3s ease;
 
 }
-
-@media (max-width:768px){
-
-    .mobile-ui-hidden{
-
-        --viewer-top:0px;
-
-        --viewer-bottom:0px;
-
-    }
-
-}
-
 
 /*==================================================
 CURRENT CHAPTER
@@ -903,28 +896,48 @@ RESPONSIVE
 
 }
 
-.mobile-ui-hidden #hud{
+/*==================================================
+MOBILE READER MODE
+==================================================*/
 
-    opacity:0;
+@media (max-width:768px){
 
-    transform:translateY(-100%);
+    body.mobile-ui-hidden{
 
-    pointer-events:none;
+        --viewer-top:0px;
+        --viewer-bottom:0px;
 
-}
+    }
 
-.mobile-ui-hidden #controls{
+    body.mobile-ui-hidden #hud{
 
-    opacity:0;
+        opacity:0;
+        transform:translateY(-100%);
+        pointer-events:none;
 
-    transform:translateY(100%);
+    }
 
-    pointer-events:none;
+    body.mobile-ui-hidden #controls{
+
+        opacity:0;
+        transform:translateY(100%);
+        pointer-events:none;
+
+    }
+
+    body.mobile-ui-hidden #fullscreenButton{
+
+        opacity:0;
+        transform:translateY(20px);
+        pointer-events:none;
+
+    }
 
 }
 
 #hud,
-#controls{
+#controls,
+#fullscreenButton{
 
     transition:
         opacity .3s ease,
