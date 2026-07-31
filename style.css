@@ -880,3 +880,32 @@ RESPONSIVE
     }
 
 }
+
+.mobile-ui-hidden #hud{
+
+    opacity:0;
+
+    transform:translateY(-100%);
+
+    pointer-events:none;
+
+}
+
+.mobile-ui-hidden #controls{
+
+    opacity:0;
+
+    transform:translateY(100%);
+
+    pointer-events:none;
+
+}
+
+#hud,
+#controls{
+
+    transition:
+        opacity .3s ease,
+        transform .3s ease;
+
+}
