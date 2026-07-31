@@ -211,6 +211,18 @@ function createElement(tag, className = "") {
     return el;
 }
 
+function getPages(chapter){
+
+    return [
+
+        chapter.card,
+
+        ...chapter.analysis
+
+    ];
+
+}
+
 /*==================================================
 IMAGE CACHE
 ==================================================*/
@@ -234,9 +246,17 @@ async function loadImage(src) {
 }
 
 async function preloadChapter(index) {
+
     const chapter = getChapter(index);
+
     if (!chapter) return;
-    await Promise.all(chapter.pages.map(loadImage));
+
+    const pages = getPages(chapter);
+
+    await Promise.all(
+        pages.map(loadImage)
+    );
+
 }
 
 async function preloadWindow(centerIndex, radius = CONFIG.preloadRadius) {
@@ -387,18 +407,33 @@ class LoopStack {
             });
 
             const handleEnd = (event) => {
-                if (event.target !== outgoingEl && event.propertyName !== "transform") return;
-                this.track.removeEventListener("transitionend", handleEnd);
 
+                if (
+                    event.target !== outgoingEl ||
+                    event.propertyName !== "transform"
+                ) {
+                    return;
+                }
+            
+                this.track.removeEventListener(
+                    "transitionend",
+                    handleEnd
+                );
+            
                 if (direction === 1) {
                     this.order.push(this.order.shift());
                 } else {
                     this.order.unshift(this.order.pop());
                 }
+            
                 this._snapPositions();
+            
                 this.animating = false;
+            
                 this.onSettle();
+            
                 resolve(true);
+            
             };
 
             this.track.addEventListener("transitionend", handleEnd);
@@ -411,14 +446,29 @@ PAGE (HORIZONTAL) RENDERING — nested per chapter slot
 ==================================================*/
 
 function renderPageSlot(chapterSlotEl, pageEl, pageIndex) {
+
     const chapter = chapterSlotEl._chapter;
+
     pageEl.innerHTML = "";
-    if (!chapter || !chapter.pages.length) return;
-    const total = chapter.pages.length;
+
+    if (!chapter) return;
+
+    const pages = getPages(chapter);
+
+    const total = pages.length;
+
     const wrapped = wrap(pageIndex, total);
+
     const page = createElement("div", "page");
-    page.appendChild(createPageImage(chapter.pages[wrapped]));
+
+    page.appendChild(
+        createPageImage(
+            pages[wrapped]
+        )
+    );
+
     pageEl.appendChild(page);
+
 }
 
 function attachPageLoop(chapterSlotEl, carouselEl) {
@@ -496,7 +546,7 @@ async function nextPage() {
     const slot = currentChapterSlot();
     const loop = slot._pageLoop;
     if (!loop || loop.animating || !slot._chapter) return;
-    const total = slot._chapter.pages.length;
+    const total = getPages(slot._chapter).length;
     await loop.advance(1, () => {
         slot._pageIndex = wrap((slot._pageIndex || 0) + 1, total);
         return slot._pageIndex;
@@ -508,7 +558,7 @@ async function previousPage() {
     const slot = currentChapterSlot();
     const loop = slot._pageLoop;
     if (!loop || loop.animating || !slot._chapter) return;
-    const total = slot._chapter.pages.length;
+    const total = getPages(slot._chapter).length;
     await loop.advance(-1, () => {
         slot._pageIndex = wrap((slot._pageIndex || 0) - 1, total);
         return slot._pageIndex;
@@ -519,7 +569,7 @@ async function previousPage() {
 function goToPage(index) {
     const slot = currentChapterSlot();
     if (!slot._chapter) return;
-    slot._pageIndex = wrap(index, slot._chapter.pages.length);
+    slot._pageIndex = wrap(index,getPages(slot._chapter).length);
     slot._pageLoop.jumpTo();
     updateUI();
 }
@@ -531,12 +581,12 @@ function firstPage() {
 function lastPage() {
     const slot = currentChapterSlot();
     if (!slot._chapter) return;
-    goToPage(slot._chapter.pages.length - 1);
+    goToPage(getPages(slot._chapter).length - 1);
 }
 
 function pageCount() {
     const slot = currentChapterSlot();
-    return slot._chapter ? slot._chapter.pages.length : 0;
+    return slot._chapter? getPages(slot._chapter).length: 0;
 }
 
 function currentPage() {
@@ -602,7 +652,7 @@ function buildTrackList() {
                 <span class="track-number">${String(index + 1).padStart(2, "0")}</span>
                 <span class="track-title">${chapter.title}</span>
             </div>
-            <span class="track-pages">${chapter.pages.length}</span>
+            <span class="track-pages">${(1+chapter.analysis.length)}</span>
         `;
         button.addEventListener("click", () => {
             closeSidebar();
