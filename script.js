@@ -231,7 +231,7 @@ function showMobileUI(){
 
 function hideMobileUI(){
 
-    console.log("hide");
+    if(window.innerWidth>768) return;
 
     document.body.classList.add("mobile-ui-hidden");
 
