@@ -429,11 +429,19 @@ OVERLAY
 VIEWER
 ==================================================*/
 
+:root{
+
+    --viewer-top:72px;
+
+    --viewer-bottom:58px;
+
+}
+
 #viewer{
 
     position:fixed;
 
-    inset:72px 0 58px 0;
+    inset:var(--viewer-top) 0 var(--viewer-bottom) 0;
 
     display:flex;
 
@@ -442,6 +450,20 @@ VIEWER
     align-items:center;
 
     overflow:hidden;
+
+    transition:inset .3s ease;
+
+}
+
+@media (max-width:768px){
+
+    .mobile-ui-hidden{
+
+        --viewer-top:0px;
+
+        --viewer-bottom:0px;
+
+    }
 
 }
 
